@@ -1,0 +1,14 @@
+extends _wireframe
+block templateContent
+	h2 Someone sent you a message on Mimi!
+	p=message
+	p From,
+	p #{user.firstName} #{user.lastName}
+	p More information about this user:
+	p Email Address: #{user.email}, Phone Number: #{user.phone}
+	p Care for: #{user.careFor}, Age: #{user.age}, Timeline to move: #{user.timelineToMove}
+	p Budget: #{user.budget}
+	p Address: #{user.address}
+	p Saved Favorites: #{user.favorites}
+	p Thanks,
+	p the Mimi team

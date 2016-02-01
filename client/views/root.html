@@ -1,0 +1,60 @@
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-sm-4">
+      <h1> <load effect='type' item='h1'> </h1>
+      <p>
+        <load effect='glitch' item='p1'>
+      </p>
+    </div>
+    <div class="col-sm-4">
+      <h2 class="text-center"> <load item='h2'> </h2>
+      <p>
+        <load effect='glitch' item='p2'>
+      </p>
+    </div>
+    <div class="col-sm-4">
+      <h2 class="text-right"> <load item='h3'></h2>
+      <p>
+        <load effect="glitch" item='p3'>
+      </p>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-lg-6">
+    
+      <div class="panel panel-default" dragable handle="panel-heading">
+        <div class="panel-heading">
+          <h3 class="panel-title text-right"><load item='ph2'></h3>
+        </div>
+        <div class="panel-body">
+          <load source='logs/newfiles.txt' effect="" update="60">
+        </div>
+      </div>
+
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title text-right"><load item='ph1'></h3>
+        </div>
+        <div class="panel-body">
+          <load source='logs/apache.txt' effect="" update="20">
+        </div>
+      </div>
+
+    </div>
+
+    <div class="col-lg-6">
+
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title"><load item='ph3'></h3>
+        </div>
+        <div class="panel-body">
+          <chat>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</div>
