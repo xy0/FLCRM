@@ -1,6 +1,6 @@
 {
-  "name": "imo",
-  "version": "1.0.0",
+  "name": "FLCRM",
+  "version": "0.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -26,6 +26,11 @@
     "prerender-node": "~2.0.2",
     "ncp": "~2.0.0",
     "bunyan": "~1.4.0",
-    "bunyan-slack": "0.0.10"
+    "bunyan-slack": "0.0.10",
+    "https": "~1.0.0",
+    "tls": "0.0.1",
+    "ssl-root-cas": "~1.1.10",
+    "fs": "0.0.2",
+    "express-sslify": "~1.0.1"
   }
 }
