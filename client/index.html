@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="fragment" content="!">
+    <base href="/">
+
+    <title>FYN</title>
+    <meta name="description" lang="en" content="How will it end?" />
+    <meta name="keywords" content="hwie, fyn, 712971818, cyroxos">
+
+    <link rel="stylesheet" type="text/css" href="http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.4/css/bootstrap.min.css">
+    <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.css">
+    <link rel="stylesheet" type="text/css" href="css/main.css">
+    <link rel="stylesheet" type="text/css" href="res/icon/styles.css">
+    <link rel="apple-touch-icon" sizes="57x57" href="res/icon/favicon/apple-icon-57x57.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="res/icon/favicon/apple-icon-60x60.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="res/icon/favicon/apple-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="res/icon/favicon/apple-icon-76x76.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="res/icon/favicon/apple-icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="res/icon/favicon/apple-icon-120x120.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="res/icon/favicon/apple-icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="res/icon/favicon/apple-icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="res/icon/favicon/apple-icon-180x180.png">
+    <link rel="icon" type="image/png" sizes="192x192"  href="/android-icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="res/icon/favicon/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="res/icon/favicon/favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="res/icon/favicon/favicon-16x16.png">
+    <link rel="manifest" href="res/icon/favicon/manifest.json">
+    <meta name="msapplication-TileColor" content="#242521">
+    <meta name="msapplication-TileImage" content="res/icon/favicon/ms-icon-144x144.png">
+    <meta name="theme-color" content="#242521">
+  </head>
+  <body ng-app="Main">
+
+    <loading-animation ng-if="!Globals.isDataLoaded" loaded="isDataLoaded"></loading-animation>
+
+    <div ui-view="navigation"></div>
+    <div ui-view="content"></div>
+
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0-beta1/jquery.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
+
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.5.0-rc.1/angular.min.js"></script>
+
+    <script src="//cdnjs.cloudflare.com/ajax/libs/angular-ui-router/0.2.15/angular-ui-router.min.js"></script>
+    
+    <script src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0-alpha/js/bootstrap.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/1.1.0/ui-bootstrap-tpls.js"></script>
+
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.js"></script>
+    <script src="node_modules/ng-flow/dist/ng-flow-standalone.js"></script>
+
+    <script src="js/Main.js"></script>
+    <script src="js/directives/MainDirectives.js"></script>
+    <script src="js/services/MainServices.js"></script>
+    <script src="js/controllers/MainControllers.js"></script>
+  </body>
+</html>
+<!-- FYN 2015 \_|\ -->
