@@ -1,61 +1,62 @@
-<div class="container-fluid">
-  <div class="row">
-    <div class="col-sm-4">
-      <h1> <load effect='type' item='h1'> </h1>
-      <p>
-        <load effect='glitch' item='p1'>
-      </p>
-    </div>
-    <div class="col-sm-4">
-      <h2 class="text-center"> <load item='h2'> </h2>
-      <p>
-        <load effect='glitch' item='p2'>
-      </p>
-    </div>
-    <div class="col-sm-4">
-      <h2 class="text-right"> <load item='h3'></h2>
-      <p>
-        <load effect="glitch" item='p3'>
-      </p>
-    </div>
+<template type="text/html" id="spawnerModule">
+  <ul ng-controller="spawnerModuleCtrl" class="userlist">
+    <li ng-repeat="user in users" 
+        ng-click="select( user )"
+        ng-class="{selected:user.isSelected}"
+    >
+      {{user.name}}
+    </li>
+  </ul>
+  <ul id="menuContainer"></ul>
+</template>
+
+<template type="text/html" id="defaultModule">
+  <div ng-controller="defaultModuleCtrl" class="userdetails">
+    <img src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/152047/{{user.img}}" width="100" height="100" />
+    <h2>{{user.name}}</h2>
+    <p>{{user.street}}</p>
   </div>
+</template>
 
-  <div class="row">
+<template type="text/html" id="iFramerModule">
+  <div ng-controller="iFramerModuleCtrl" class="fill-height">
+    <form ng-submit="changeIframeURL(iframeURLInput)">
+      <input type="text" class="persistantField col-xs-11" ng-model="iframeURLInput">
+      <button type="submit" class="btn btn-sm btn-default col-xs-1">Load</button>
+    </form>
+    <iframe width="100%" height="100%" frameBorder="0" ng-src="{{iframeURL}}"></iframe>
+  </div>
+</template>
 
-    <div class="col-lg-6">
+<!-- <template type="text/html" id="textChatModule">
+  <div ng-controller="iframerCtrl" class="fill-height">
+    <form ng-submit="changeIframeURL(iframeURLInput)">
+      <input type="text" class="col-xs-11" ng-model="iframeURLInput">
+      <button type="submit" class="btn btn-sm btn-default col-xs-1">Load</button>
+    </form>
+    <iframe width="100%" height="100%" frameBorder="0" ng-src="{{iframeURL}}"></iframe>
+  </div>
+</template> -->
 
-      <div class="panel panel-default">
-        <div class="panel-heading">
-          <h3 class="panel-title text-right"><load item='ph2'></h3>
-        </div>
-        <div class="panel-body">
-          <load source='logs/newfiles.txt' effect="" update="60">
-        </div>
-      </div>
+<template type="text/html" id="uploaderModule">
+  <div ng-controller="uploaderModuleCtrl" class="fill-height">
 
-      <div class="panel panel-default">
-        <div class="panel-heading">
-          <h3 class="panel-title text-right"><load item='ph1'></h3>
-        </div>
-        <div class="panel-body">
-          <load source='logs/apache.txt' effect="" update="20">
-        </div>
-      </div>
-
+    <div ngf-drop ngf-select ng-model="files" class="drop-box" 
+            ngf-drag-over-class="'dragover'" ngf-multiple="true" ngf-allow-dir="true"
+            accept="image/*,application/pdf" 
+            ngf-pattern="'image/*,application/pdf'">Drop pdfs or images here or click to upload</div>
+        <div ngf-no-file-drop>File Drag/Drop is not supported for this browser</div>
+        Files:
+        <ul>
+            <li ng-repeat="f in files" style="font:smaller">{{f.name}} {{f.$error}} {{f.$errorParam}}</li>
+        </ul>
+        Upload Log:
+        <pre>{{log}}</pre>
     </div>
 
-    <div class="col-lg-6">
 
-      <div class="panel panel-default">
-        <div class="panel-heading">
-          <h3 class="panel-title"><load item='ph3'></h3>
-        </div>
-        <div class="panel-body">
-          <chat>
-        </div>
-      </div>
 
-    </div>
 
   </div>
-</div>
+</template>
+

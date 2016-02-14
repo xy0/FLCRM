@@ -3,9 +3,9 @@ BunyanSlack = require('bunyan-slack'); // log send to slack
 
 // config params 
 var Config = {
-  appName:          'FLCRM', 
-  siteURL:          'http://localhost',
-  nodePort:         3500,
+  appName:          'XY0', 
+  siteURL:          'xy0.me',
+  nodePort:         3000,
   forceHTTPS:       false,
   SSLPassphrase:    'password',
   SSLKeyLocation:   'cert.key',
@@ -35,8 +35,8 @@ Config.log = bunyan.createLogger({
     {
       stream: new BunyanSlack({
           webhook_url: "",
-          channel: "#FLCRM",
-          username: "FLCRMLogger",
+          channel: "#XY0-log",
+          username: "XY0Logger",
       }),
       level: "error"
     }*/

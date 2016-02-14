@@ -1,4 +1,6 @@
 client/node_modules
+client/res/lib
+client/dist
 server/node_modules
 server/config.js
 server/*.log

@@ -1,0 +1,269 @@
+<div class="jumbotron" id="theHeader">
+  <div class="container-fluid">
+    <h1><load item="h1"></h1>
+    <p> <load effect="glitch" item="p1"> </p>
+    <p><a href="http://helpme.vodka" target="_blank" class="btn btn-success btn-lg">Enzymes </a></p>
+  </div>
+</div>
+<div class="container-fluid" id="theContainer" monitor-window-size>
+
+  <div class="col-sm-4 pull-right" style="{{ boxStickyOffset }}" id="theStickyBox">
+
+    <p style="background-color: red">
+      HTML is a markup language that is used for creating web pages. The HTML tutorial section will help you understand the basics of HTML, so that you can create your own web pages or website.
+    </p>
+
+  </div>
+
+  <br>
+  <br>
+
+<ol class="text"><li class="li1"><div class="de1">&lt;div class="jumbotron" id="theHeader"&gt;</div></li>
+<li class="li1"><div class="de1">&nbsp; &lt;div class="container-fluid"&gt;</div></li>
+<li class="li1"><div class="de1">&nbsp; &nbsp; &lt;h1&gt;&lt;load item="h1"&gt;&lt;/h1&gt;</div></li>
+<li class="li1"><div class="de1">&nbsp; &nbsp; &lt;p&gt; &lt;load effect="glitch" item="p1"&gt; &lt;/p&gt;</div></li>
+<li class="li2"><div class="de2">&nbsp; &nbsp; &lt;p&gt;&lt;a href="http://helpme.vodka" target="_blank" class="btn btn-success btn-lg"&gt;Enzymes &lt;/a&gt;&lt;/p&gt;</div></li>
+<li class="li1"><div class="de1">&nbsp; &lt;/div&gt;</div></li>
+<li class="li1"><div class="de1">&lt;/div&gt;</div></li>
+<li class="li1"><div class="de1">&lt;div class="container-fluid" id="theContainer" monitor-window-size&gt;</div></li>
+<li class="li1"><div class="de1">&nbsp;</div></li>
+<li class="li2"><div class="de2">&nbsp; &lt;div class="col-sm-4 pull-right" style="{{ boxStickyOffset }}" id="theStickyBox"&gt;</div></li>
+<li class="li1"><div class="de1">&nbsp;</div></li>
+<li class="li1"><div class="de1">&nbsp; &nbsp; &lt;p style="background-color: red"&gt;</div></li>
+<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; HTML is a markup language that is used for creating web pages. The HTML tutorial section will help you understand the basics of HTML, so that you can create your own web pages or website.</div></li>
+<li class="li1"><div class="de1">&nbsp; &nbsp; &lt;/p&gt;</div></li>
+<li class="li2"><div class="de2">&nbsp;</div></li>
+<li class="li1"><div class="de1">&nbsp; &lt;/div&gt;</div></li>
+<li class="li1"><div class="de1">&nbsp; &lt;br&gt;</div></li>
+<li class="li1"><div class="de1">&nbsp; &lt;br&gt;</div></li>
+<li class="li1"><div class="de1">&nbsp; &lt;br&gt;</div></li>
+<li class="li2"><div class="de2">&nbsp; &lt;br&gt;</div></li>
+<li class="li1"><div class="de1">&nbsp; &lt;br&gt;</div></li>
+<li class="li1"><div class="de1">&nbsp; &lt;br&gt;</div></li>
+<li class="li1"><div class="de1">&nbsp; &lt;br&gt;</div></li>
+<li class="li1"><div class="de1">&nbsp; &lt;br&gt;</div></li>
+<li class="li2"><div class="de2">&nbsp; &lt;br&gt;</div></li>
+<li class="li1"><div class="de1">&nbsp; &lt;br&gt;</div></li>
+<li class="li1"><div class="de1">&nbsp; &lt;br&gt;</div></li>
+<li class="li1"><div class="de1">&nbsp; &lt;br&gt;</div></li>
+<li class="li1"><div class="de1">&nbsp;</div></li>
+<li class="li2"><div class="de2">&nbsp; &lt;div class="row" id="theFooter" style="background-color: blue;"&gt;</div></li>
+<li class="li1"><div class="de1">&nbsp; &nbsp; &lt;div class="col-xs-12"&gt;</div></li>
+<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; </div></li>
+<li class="li1"><div class="de1">&nbsp; &nbsp; &lt;/div&gt;</div></li>
+<li class="li1"><div class="de1">&nbsp; &lt;/div&gt;</div></li>
+<li class="li2"><div class="de2">&nbsp;</div></li>
+<li class="li1"><div class="de1">&nbsp;</div></li>
+<li class="li1"><div class="de1">&lt;/div&gt;</div></li>
+</ol>
+
+
+  <br>
+  <pre>
+    .controller("mainCtrl", function($scope, $rootScope, $timeout){
+      window.scrollTo(0, 0);
+      
+      $scope.bodyWidth = angular.element(document.querySelector( 'body' ))[0].clientWidth;
+      var bodyHeight = angular.element(document.querySelector( 'body' ))[0].clientHeight;
+
+      var footerHeight = angular.element(document.querySelector( '#theFooter' ))[0].clientHeight;
+      var boxHeight = angular.element(document.querySelector( '#theStickyBox' ))[0].clientHeight;
+
+      var bodyHeightOffset = bodyHeight-footerHeight-boxHeight;
+
+      fixBoxPosition = function() {
+        bodyHeight = angular.element(document.querySelector( 'body' ))[0].clientHeight;
+        footerHeight = angular.element(document.querySelector( '#theFooter' ))[0].clientHeight;
+        boxHeight = angular.element(document.querySelector( '#theStickyBox' ))[0].clientHeight;
+        bodyHeightOffset = bodyHeight-footerHeight-boxHeight;
+
+        var theHeaderHeight = angular.element(document.querySelector( '#theHeader' ))[0].clientHeight;
+        var headerMarginOffset = 30;
+        var boxMarginOffset = 20;
+        var boxWidth = angular.element(document.querySelector( '#theStickyBox' ))[0].clientWidth;
+
+        var contentDivWidth = angular.element(document.querySelector( '#theContainer' ))[0].clientWidth - boxWidth;
+        var containerWidth = angular.element(document.querySelector( '#theContainer' ))[0].clientWidth;
+        $scope.bodyWidth = angular.element(document.querySelector( 'body' ))[0].clientWidth;
+        var offset =  contentDivWidth + ($scope.bodyWidth - containerWidth - boxMarginOffset)/2;
+        var scrollOffset = window.pageYOffset;
+
+        if (scrollOffset > theHeaderHeight && scrollOffset < bodyHeightOffset){
+          $scope.boxStickyOffset = "position:fixed;top:"+headerMarginOffset+"px;left:"+offset+"px;";
+        }else if(scrollOffset >= bodyHeightOffset){
+          $scope.boxStickyOffset = "position:relative;top:"+(bodyHeightOffset - headerMarginOffset - footerHeight)+"px;";
+        }else{
+          $scope.boxStickyOffset = 0;
+        }
+      }
+
+      window.onscroll = function () {
+        $timeout( function(){
+          fixBoxPosition();
+        },50)
+      }
+
+      $scope.$watch('windowWidth', function() {
+        $timeout( function(){
+          fixBoxPosition();
+        },50)
+      })
+
+      $scope.$on('$destroy', function() {
+          window.onscroll = null;
+      })
+
+    })
+</pre>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <pre>
+    .directive('monitorWindowSize', function ($window) {
+      return function (scope, element) {
+        var w = angular.element($window);
+        scope.getWindowDimensions = function () {
+          return w.width();
+        }
+        scope.$watch(scope.getWindowDimensions, function (newValue) {
+          scope.windowWidth = newValue;
+          return newValue
+        })
+        w.bind('resize', function () {
+          scope.$apply();
+        })
+      }
+    })
+  </pre>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+
+  <div class="row" id="theFooter" style="background-color: blue;">
+    <div class="col-xs-12">
+      <footer>
+        <p>&copy; Copyright 2084 ~C</p>
+      </footer>
+      
+      <footer>
+        <p>&copy; Copyright 2084 ~C</p>
+      </footer>
+      
+      <footer>
+        <p>&copy; Copyright 2084 ~C</p>
+      </footer>
+      
+      <footer>
+        <p>&copy; Copyright 2084 ~C</p>
+      </footer>
+      
+      <footer>
+        <p>&copy; Copyright 2084 ~C</p>
+      </footer>
+      
+      <footer>
+        <p>&copy; Copyright 2084 ~C</p>
+      </footer>
+      
+      <footer>
+        <p>&copy; Copyright 2084 ~C</p>
+      </footer>
+      
+    </div>
+  </div>
+
+
+</div>

@@ -10,7 +10,11 @@
   "license": "ISC",
   "dependencies": {
     "gulp": "^3.9.0",
+    "gulp-concat": "^2.6.0",
     "gulp-less": "^3.0.3",
-    "ng-flow": "~2.1.4"
+    "gulp-minify-css": "^1.2.3",
+    "gulp-ng-annotate": "^1.1.0",
+    "gulp-uglify": "^1.5.2",
+    "ng-file-upload": "^12.0.1"
   }
 }

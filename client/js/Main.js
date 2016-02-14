@@ -1,23 +1,37 @@
-/*                                        FYN 2015 \_|\                                              */
-angular.module("Main", ['ui.router','ui.bootstrap', 'flow'])
+/*                                        FYN 2016 \_|\                                              */
+angular.module("Main", ['ui.router', 'ngFileUpload'])
 
-.run(function($rootScope){
-  $rootScope.APIADDRESS = Window.origin+"/";
-  $rootScope.Globals = {};
-  $rootScope.Globals.isDataLoaded = false;
-  $rootScope.Globals.page = 'root';
+.run( function ($rootScope, $state, Cookies, Log) {
+
+  $rootScope.Globals = {
+    siteURL: Window.origin + "/",
+    isDataLoaded: false,
+    page:'root' || $state.current.name
+  }
+
+  if(Cookies.check("Prefs")) {
+    // Load Prefrences from Cookie
+    Log(1, "prefsCookie", "found");
+    $rootScope.Prefs = Cookies.readB64("Prefs");
+    Log(1, "prefs", $rootScope.Prefs);
+  } else {
+    // Default Prefrences
+    Log(1, "prefsCookie", "not found");
+    $rootScope.Prefs = {
+      noLocalStorage: false
+    }
+  }
+
+  Log(1, "savedState", JSON.parse(localStorage.getItem( "savedState" )));
+
 })
 
-.config(function($urlRouterProvider, $stateProvider, $locationProvider, $sceProvider){
+.config( function ($urlRouterProvider, $stateProvider, $locationProvider, $sceProvider) {
   $sceProvider.enabled(false);
   $stateProvider
     .state('root', {
       url: '/',
       views: {
-        'navigation': {
-          templateUrl: 'views/navigation.html',
-          controller: 'navCtrl'
-        },
         'content': {
           templateUrl: 'views/root.html',
           controller: 'mainCtrl'
@@ -33,20 +47,29 @@ angular.module("Main", ['ui.router','ui.bootstrap', 'flow'])
         },
         'content': {
           templateUrl: 'views/demo.html',
-          controller: 'mainCtrl'
+          controller: 'emptyCtrl'
         }
       }
     })
-    .state('minecraft', {
-      url: '/minecraft',
+    .state('test', {
+      url: '/test',
       views: {
         'navigation': {
           templateUrl: 'views/navigation.html',
           controller: 'navCtrl'
         },
         'content': {
-          templateUrl: 'views/minecraft.html',
+          templateUrl: 'views/test.html',
           controller: 'mainCtrl'
+        }
+      }
+    })
+    .state('sidebar', {
+      url: '/sidebar',
+      views: {
+        'content': {
+          templateUrl: 'views/sidebar.html',
+          controller: 'staticDemoCtrl'
         }
       }
     })
@@ -56,17 +79,7 @@ angular.module("Main", ['ui.router','ui.bootstrap', 'flow'])
   $locationProvider.hashPrefix('!');
 })
 
-.config(['flowFactoryProvider', function (flowFactoryProvider) {
-  flowFactoryProvider.defaults = {
-    target: 'q/',
-    permanentErrors: [404, 500, 501],
-    maxChunkRetries: 2,
-    chunkRetryInterval: 5000,
-    simultaneousUploads: 4
-  }
-  flowFactoryProvider.on('catchAll', function (event) {
-    console.log('upload', arguments[0]);
-  })
-}])
-
 ;
+
+// create another module for running "modules"... 
+angular.module("Mods", [])

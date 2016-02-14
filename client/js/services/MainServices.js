@@ -1,4 +1,24 @@
 angular.module("Main")
+
+ // Proper logging service, can be configured to dispatch errors and certain events
+// replaces the need to console log everyehre
+.factory('Log', function() {
+  var dev = function (level, event, result) {
+
+    // if there was an error, style the output accordingly
+    if( level == 0 ) {
+      console.warn('WARN:', event, result);
+    } else 
+    if( level < 0 ) {
+      console.error('ERROR:', event, result);
+    } else {
+      console.log('> ', event, result);
+    }
+  }
+
+  return dev;
+})
+
 .filter('myLimitTo', function() {
   return function(input, limit, begin) {
     return input.slice(begin, begin + limit);
@@ -51,6 +71,50 @@ angular.module("Main")
   }
 })
 
+// service to change the page
+.factory('Page', function($rootScope, $state){
+  var Page = {
+
+    change: function(page){
+
+      var pageIsDifferent = function() {
+
+        // if the provided page is different than the current page
+        if(!!page && page != $rootScope.Globals.page) {
+          return true;
+        } else {
+          return false;
+        }
+      }
+
+      var changePage = function() {
+
+        // turn on loading symbol
+        $rootScope.Globals.isDataLoaded = false;
+
+        // change the page
+        $rootScope.Globals.page = page;
+        $state.go(page);
+
+        return true;
+      }
+      
+      if( pageIsDifferent() ) {
+        changePage();
+
+        // log the new page change
+        $rootScope.log(0, 'pageChange', page);
+      } else {
+
+        // log the error
+        $rootScope.log(-1, 'pageChange', 'page and destination are the same');
+      }
+    }
+  }
+  return Page;
+})
+
+
 .factory('API', function($http) {
   var promise = [];
   var API = {
@@ -78,8 +142,9 @@ angular.module("Main")
   return API;
 })
 
-.factory('Cookies', function(){
+.factory('Cookies', function(Log){
   var Cookie = {
+
     read: function (name) {
       var nameEQ = name + "=";
       var ca = document.cookie.split(';');
@@ -92,8 +157,50 @@ angular.module("Main")
       }
       return null;
     },
+
+    readB64: function (name) {
+      var nameEQ = name + "=";
+      var ca = document.cookie.split(';');
+
+      for(var i=0;i < ca.length;i++) {
+        var c = ca[i];
+        while (c.charAt(0)==' ') {
+          c = c.substring(1,c.length);
+        }
+
+        if (c.indexOf(nameEQ) == 0) {
+          return JSON.parse(atob(c.substring(nameEQ.length,c.length)));
+        }
+      }
+      return null;
+    },
+
     check: function (name){
       return (document.cookie.indexOf(name) >= 0);
+    },
+
+    write: function (cookieName, cookieJSON) {
+
+      var cookieData = btoa( JSON.stringify(cookieJSON) );
+
+      var index = -1;
+      if (document.cookie) {
+        var index = document.cookie.indexOf(cookieName);
+      }
+
+      if (index == -1) {
+        Log(1, "writeCookie", cookieName+" created");
+        document.cookie = cookieName +"="+cookieData+"; expires=Saturday, 11-Nov-2084 11:11:11 GMT";
+      } else {
+        Log(1, "writeCookie", cookieName+" updated");
+        var countbegin = (document.cookie.indexOf("=", index) + 1);
+        var countend = document.cookie.indexOf(";", index);
+        if (countend == -1) {
+          countend = document.cookie.length;
+        }
+        //var count = eval( document.cookie.substring(countbegin, countend) ) + 1;
+        document.cookie = cookieName +"="+cookieData+"; expires=Saturday, 11-Nov-2084 11:11:11 GMT";
+      }
     }
   }
   return Cookie;
