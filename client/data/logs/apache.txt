@@ -1,1 +1,0 @@
-24.8.187.105 - - [28/Oct/2015:10:10:12 -0600] "GET /wpad.dat HTTP/1.1" 404 459 "-" "WinHttp-Autoproxy-Service/5.1"
