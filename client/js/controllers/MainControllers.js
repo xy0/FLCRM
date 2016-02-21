@@ -1,4 +1,4 @@
-angular.module("Main")
+angular.module("flcrm")
 
 // the top-most navbar controller
 .controller('navCtrl', function ($scope, $rootScope, Page, Log, Cookies){
@@ -9,9 +9,27 @@ angular.module("Main")
 
   $scope.resetWorkspace = function(mode) {
     Log(1, "resetWorkspace", mode)
-    localStorage.removeItem( 'savedState' );
+    localStorage.removeItem( 'autoSaveState' );
     window.location.reload();
   }
+
+  // $scope.saveWorkspace = function() {
+  //   Log(1, "savingWorkspace", '%%');
+
+  //   var state = JSON.stringify( myLayout.toConfig() );
+  //   localStorage.setItem( 'savedState1', state );
+  //   $scope.setPref(savedWorkspace, 'savedState1');
+  // }
+
+  // $scope.loadWorkspace = function() {
+  //   Log(1, "loadingWorkspace", '%%');
+
+  //   var workspace = $rootScope.Prefs.savedWorkspace;
+  //   myLayout = null;
+
+  //   newWorkspace = localStorage.getItem( workspace );
+  //   myLayout = new GoldenLayout( JSON.parse( newWorkspace ) );
+  // }
 
   $scope.setPref = function(pref, value) {
     if ( pref in $rootScope.Prefs ) {
@@ -61,12 +79,12 @@ angular.module("Main")
 
    // local storage for saving the layout, if noLocalStorage is set, clear
   // the local storage and use default component
-  var savedState = localStorage.getItem( 'savedState' );
+  var autoSaveState = localStorage.getItem( 'autoSaveState' );
 
-  if( savedState !== null && !$rootScope.Prefs.noLocalStorage) {
-    var myLayout = new GoldenLayout( JSON.parse( savedState ) );
+  if( autoSaveState !== null && !$rootScope.Prefs.noLocalStorage) {
+    var myLayout = new GoldenLayout( JSON.parse( autoSaveState ) );
   } else {
-    // localStorage.removeItem( 'savedState' );
+    // localStorage.removeItem( 'autoSaveState' );
     var myLayout = new GoldenLayout( defaultConfig );
   }
 
@@ -74,7 +92,7 @@ angular.module("Main")
   if( !$rootScope.Prefs.noLocalStorage ) {
     myLayout.on( 'stateChanged', function(){
       var state = JSON.stringify( myLayout.toConfig() );
-      localStorage.setItem( 'savedState', state );
+      localStorage.setItem( 'autoSaveState', state );
     });
   }
 

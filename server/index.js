@@ -47,14 +47,17 @@ APP_CONFIG.log.info("Application Starting");
 // --------------------------------------------------------------------------
 // API
 // --------------------------------------------------------------------------
+var qdAPI = require ('./api/qdAPI.js');
+
+app.post('/qd', qdAPI.new) // log client application events
 
 
 // if no route is specified, send the request to angular's index (for html5 states)
 app.get('*', function (req, res) {
 
-     // send the request to the root index file, defineing the current working directory
-    //  and and replacing the last part of the path with the client directory 
-    res.sendFile('index.html', { root: __dirname.replace( __dirname.split(/[\\/]/).pop(), 'client') });  
+   // send the request to the root index file, defineing the current working directory
+  //  and and replacing the last part of the path with the client directory 
+  res.sendFile('index.html', { root: __dirname.replace( __dirname.split(/[\\/]/).pop(), 'client') });  
 });
 
 

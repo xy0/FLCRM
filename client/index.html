@@ -33,13 +33,6 @@
     <meta name="msapplication-TileColor" content="#242521">
     <meta name="msapplication-TileImage" content="res/icon/favicon/ms-icon-144x144.png">
     <meta name="theme-color" content="#242521">
-  </head>
-  <body ng-app="Main">
-
-    <loading-animation ng-if="!Globals.isDataLoaded" loaded="isDataLoaded"></loading-animation>
-
-    <div ui-view="navigation"></div>
-    <div ui-view="content"></div>
 
     <script src="res/lib/jquery/3.0.0-beta1.min.js"></script>
     <script src="res/lib/angularjs/1.5.0-rc.1.min.js"></script>
@@ -54,17 +47,25 @@
     <script src="node_modules/ng-file-upload/dist/ng-file-upload-shim.min.js"></script>
     <script src="node_modules/ng-file-upload/dist/ng-file-upload.min.js"></script>
 
-    
-    <script src="js/Main.js"></script>
+    <script src="js/flcrm.js"></script>
     <script src="js/directives/MainDirectives.js"></script>
     <script src="js/services/MainServices.js"></script>
     <script src="js/controllers/MainControllers.js"></script>
     <script src="js/controllers/ModuleControllers.js"></script>
      
-
     <!-- 
     <script src="dist/js.min.js"></script>
     -->
+
+  </head>
+  <body ng-app="flcrm">
+
+
+    <loading-animation ng-if="!Globals.isDataLoaded" loaded="isDataLoaded"></loading-animation>
+
+    <div ui-view="navigation"></div>
+    <div ui-view="content"></div>
+
 
   </body>
 </html>

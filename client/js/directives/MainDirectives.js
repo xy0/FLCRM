@@ -1,4 +1,4 @@
-angular.module("Main")
+angular.module("flcrm")
 
 .directive('loadingAnimation', function($timeout, $interval, $rootScope){
   return {

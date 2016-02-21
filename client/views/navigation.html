@@ -37,6 +37,18 @@
           <ul class="navbar-inverse dropdown-menu">
             <li class="dropdown-header">Layout</li>
             <li><a href="javascript:void(0)" ng-click="resetWorkspace(1)">Reset Workspace</a></li>
+<!--             <li><a href="javascript:void(0)" 
+                   ng-show="true" 
+                   ng-click="saveWorkspace()"
+            >
+              Save Workspace
+            </a></li>
+            <li><a href="javascript:void(0)" 
+                   ng-show="Prefs.savedWorkspace != false" 
+                   ng-click="loadWorkspace()"
+            >
+              Load Workspace
+            </a></li> -->
             <li><a href="javascript:void(0)" 
                    ng-show="Prefs.noLocalStorage == false" 
                    ng-click="setPref('noLocalStorage', true)"

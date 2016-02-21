@@ -1,22 +1,96 @@
-angular.module("Main")
+angular.module("flcrm")
 
  // Proper logging service, can be configured to dispatch errors and certain events
 // replaces the need to console log everyehre
-.factory('Log', function() {
-  var dev = function (level, event, result) {
+.factory('Log', function($rootScope, API, qdMsg, LOG_URLs) {
+  var Log = function (level, event, result) {
 
-    // if there was an error, style the output accordingly
+    var sendToAPIs = function(level, event, result) {
+
+      // if not disabled, send the events to the master logger qd
+      if( $rootScope.Prefs.sendLogEvents == true) {
+
+        // send msg to all apis listed
+        for( var l = LOG_URLs.length - 1; l >= 0; l = l-1 ) {
+
+          // format the message properly
+          var msg = qdMsg.format (
+            {
+              type: 99,
+              src : $rootScope.Globals.siteURL,
+              pri : level,
+              msg : {event:event, result: result}
+            }
+          );
+
+          // send message to server
+          API.http(LOG_URLs[l], 'post', msg)
+          .then( function(res) {
+            // console.log(res); // remove when not debuging
+          });
+        }
+      }    
+    }
+
+    // if there was an error, style the output accordingly and consolelog it
     if( level == 0 ) {
+
       console.warn('WARN:', event, result);
-    } else 
-    if( level < 0 ) {
+      sendToAPIs( level, event, result );
+
+    } else if( level < 0 ) {
+
       console.error('ERROR:', event, result);
+      sendToAPIs( level, event, result );
+
     } else {
+
       console.log('> ', event, result);
+      sendToAPIs( level, event, result );
+
     }
   }
 
-  return dev;
+  return Log;
+})
+
+.factory('qdMsg', function() {
+
+  var qdMsg = {
+    format: function(fields){
+
+      var msg = {
+           v: 0,
+         key: false,
+        type: 0,
+        date: (new Date).getTime(),
+         src: '',
+         dst: '',
+         pri: 0,
+         msg: ''
+      }
+
+       // Visit non-inherited enumerable keys
+      //update msg properties as they are provided
+      Object.keys(msg).forEach(function(key) {
+        if(msg.hasOwnProperty(key)) {
+          Object.keys(fields).forEach(function(key) {
+            if(fields.hasOwnProperty(key)) {
+              msg[key] = fields[key];
+            }
+          });
+        }
+      });
+
+      return msg;
+    },
+
+    parse: function() {
+      //
+    }
+  }
+
+  return qdMsg;
 })
 
 .filter('myLimitTo', function() {
@@ -114,35 +188,82 @@ angular.module("Main")
   return Page;
 })
 
-
 .factory('API', function($http) {
   var promise = [];
-  var API = {
-    request: function(url, method, params, promiseID) {
+  var functions = {
+    http: function(url, method, params, promiseID) {
       method = method || "get";
       promiseID = promiseID || false;
       params = params || null;
+
       if(promiseID){
         if (!promise[promiseID] ) {
-          promise[promiseID] = $http[method](url,params).then(function (response) {
+          promise[promiseID] = $http[method](url,params).then( function (response) {
             return response.data;
           })
         }
         return promise[promiseID];
-      }else{
-        promise = $http[method](url,params).then(function (response) {
+      } else {
+        promise = $http[method](url,params).then( function (response) {
           return response.data;
         }).catch(function(err){
           return err;
         })
         return promise;
       }
+    },
+
+    jsonp: function(url, promiseID) {
+      promiseID = promiseID || false;
+
+      if(promiseID){
+        if ( !promise[promiseID] ) {
+          promise[promiseID] = $http.jsonp(url + "&callback=JSON_CALLBACK")
+          .success( function(res) {
+            //
+          })
+          .error( function (res) {
+            //
+          })
+        }
+        return promise[promiseID];
+      } else {
+        promise = $http.jsonp(url + "&callback=JSON_CALLBACK")
+        .success( function(res) {
+          //
+        })
+        .error( function (res) {
+          //
+        })
+        return promise;
+      }
     }
   }
-  return API;
+  return functions;
 })
 
-.factory('Cookies', function(Log){
+.factory('Feed', function(API, Log) {
+  var promise = [];
+
+  var functions = {
+    get: function (URL) {
+
+      promise = API.jsonp(URL, 'theFeedPromiseID').then( function (res) {
+        return res.data;
+      }).catch( function(err) {
+        
+        // only log if there is an error
+        Log(-1, "getFeed", err);
+        return err;
+      })
+
+      return promise;
+    }
+  }
+  return functions;
+})
+
+.factory('Cookies', function(){
   var Cookie = {
 
     read: function (name) {
@@ -189,17 +310,17 @@ angular.module("Main")
       }
 
       if (index == -1) {
-        Log(1, "writeCookie", cookieName+" created");
-        document.cookie = cookieName +"="+cookieData+"; expires=Saturday, 11-Nov-2084 11:11:11 GMT";
+        //Log(1, "writeCookie", cookieName+" created");
+        document.cookie = cookieName +"="+cookieData+"; expires=Saturday, 11-Nov-2084 18:11:11 GMT";
       } else {
-        Log(1, "writeCookie", cookieName+" updated");
+        //Log(1, "writeCookie", cookieName+" updated");
         var countbegin = (document.cookie.indexOf("=", index) + 1);
         var countend = document.cookie.indexOf(";", index);
         if (countend == -1) {
           countend = document.cookie.length;
         }
         //var count = eval( document.cookie.substring(countbegin, countend) ) + 1;
-        document.cookie = cookieName +"="+cookieData+"; expires=Saturday, 11-Nov-2084 11:11:11 GMT";
+        document.cookie = cookieName +"="+cookieData+"; expires=Saturday, 11-Nov-2084 18:11:11 GMT";
       }
     }
   }
