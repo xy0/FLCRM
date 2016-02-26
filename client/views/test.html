@@ -19,12 +19,14 @@
 </template>
 
 <template type="text/html" id="iFramerModule">
-  <div ng-controller="iFramerModuleCtrl" class="fill-height">
-    <form ng-submit="changeIframeURL(iframeURLInput)">
-      <input type="text" class="persistantField col-xs-11" ng-model="iframeURLInput">
-      <button type="submit" class="btn btn-sm btn-default col-xs-1">Load</button>
-    </form>
-    <iframe width="100%" height="100%" frameBorder="0" class="padding-bottom-32px" ng-src="{{iframeURL}}"></iframe>
+  <div ng-controller="iFramerModuleCtrl" class="iFramerModuleWindow fill-height" ng-click="enablePointerEvents = true">
+    <div class="fill-height" ng-class="{'no-pointer-events': !enablePointerEvents}">
+      <form ng-submit="changeIframeURL(iframeURLInput)">
+        <input type="text" class="persistantField col-xs-11" ng-model="iframeURLInput">
+        <button type="submit" class="btn btn-sm btn-default col-xs-1">Load</button>
+      </form>
+      <iframe width="100%" height="100%" frameBorder="0" class="padding-bottom-32px" ng-src="{{iframeURL}}"></iframe>
+    </div>
   </div>
 </template>
 

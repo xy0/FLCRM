@@ -41,6 +41,8 @@ angular.module("Mods")
 })
 
 .controller("iFramerModuleCtrl", function($scope, $sce) {
+
+  // change the url of the iframe
   $scope.changeIframeURL = function (url) {
 
     // add http if link dosn't start with either http or https
@@ -49,6 +51,7 @@ angular.module("Mods")
     }
     $scope.iframeURL = $sce.trustAsResourceUrl(url);
   }
+  
 })
 
 .controller("uploaderModuleCtrl", function($scope) {
