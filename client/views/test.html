@@ -30,15 +30,14 @@
   </div>
 </template>
 
-<!-- <template type="text/html" id="textChatModule">
-  <div ng-controller="iframerCtrl" class="fill-height">
-    <form ng-submit="changeIframeURL(iframeURLInput)">
-      <input type="text" class="col-xs-11" ng-model="iframeURLInput">
-      <button type="submit" class="btn btn-sm btn-default col-xs-1">Load</button>
-    </form>
-    <iframe width="100%" height="100%" frameBorder="0" ng-src="{{iframeURL}}"></iframe>
+<template type="text/html" id="textChatterModule">
+  <div ng-controller="textChatterCtrl" class="fill-height">
+
+    <chat />
+
+    
   </div>
-</template> -->
+</template>
 
 <template type="text/html" id="uploaderModule">
   <div ng-controller="uploaderModuleCtrl" class="fill-height">

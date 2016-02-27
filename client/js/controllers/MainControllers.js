@@ -1,4 +1,4 @@
-angular.module("flcrm")
+angular.module("flcrm.mainControllers", [])
 
 // the top-most navbar controller
 .controller('navCtrl', function ($scope, $rootScope, Page, Log, Cookies){
@@ -67,7 +67,7 @@ angular.module("flcrm")
             type: 'component',
             componentName: 'MyLayoutComponent',
             componentState: {
-              module: 'Mods',
+              module: 'flcrm.moduleControllers',
               templateId: 'spawnerModule',
               selectedUserIndex: 2
             }
@@ -190,7 +190,7 @@ angular.module("flcrm")
     type: 'component',
     componentName: 'MyLayoutComponent',
     componentState: {
-      module: 'Mods'
+      module: 'flcrm.moduleControllers'
     }
   };
 
@@ -214,7 +214,8 @@ angular.module("flcrm")
   addMenuItem( 'spawner', defaultModuleConfig, "Spawner" );
   addMenuItem( 'default', defaultModuleConfig, "Blank" );
   addMenuItem( 'iFramer', defaultModuleConfig, "iFramer" );
-  addMenuItem( 'uploader', defaultModuleConfig, "Uploader" );
+  //addMenuItem( 'uploader', defaultModuleConfig, "Uploader" );
+  addMenuItem( 'textChatter', defaultModuleConfig, "Chat" );
 
 })
 

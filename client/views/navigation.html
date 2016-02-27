@@ -12,13 +12,15 @@
     <div class="collapse navbar-collapse" id="navbarCollapse">
       <ul class="nav navbar-nav">
 
-        <li>
+<!--         <li>
           <a href="http://xy0.me/plex">Plex</a>
-        </li>
+        </li> -->
 
         <!-- <li ng-click="changePage('minecraft');" ng-class="{active: Globals.page == 'minecraft'}">
           <a href="">Minecraft</a>
         </li> -->
+
+
 
         <li ng-click="changePage('demo');" ng-class="{active: Globals.page == 'demo'}">
           <a href="">Demo</a>
@@ -65,7 +67,7 @@
         </li>
 
 
-        <li class="dropdown">
+<!--         <li class="dropdown">
           <a href="#" 
              class="dropdown-toggle" 
              data-toggle="dropdown" 
@@ -84,9 +86,28 @@
             <li class="dropdown-header">Other</li>
             <li><a target="_parent" href="https://10.0.11.12:4200/">FYN Shell</a></li>
           </ul>
-        </li>
+        </li> -->
+
 
       </ul>
+
+
+      <ul class="nav navbar-nav pull-right">
+        <li class="dropdown" id="menuLogin">
+          <a class="dropdown-toggle" href="#" data-toggle="dropdown" id="navLogin">Login</a>
+          <div class="dropdown-menu" style="left:auto;right:0;background-color: #222;padding:10px 5px;min-width:193px;">
+            <form id="loginForm">
+              <input name="username" id="username" placeholder="Username" type="text"><br><br>
+              <input name="password" id="password" placeholder="Password" type="password"><br><br>
+              <button type="button" class="btn btn-sm">Login</button>
+              <button type="button" class="btn btn-sm">Create</button>
+              <button type="button" class="btn btn-sm">Reset</button>
+            </form>
+          </div>
+        </li>
+      </ul>
+
+
     </div>
   </div>
 </nav>

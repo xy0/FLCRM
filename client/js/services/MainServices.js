@@ -1,4 +1,4 @@
-angular.module("flcrm")
+angular.module("flcrm.mainServices", [])
 
  // Proper logging service, can be configured to dispatch errors and certain events
 // replaces the need to console log everyehre

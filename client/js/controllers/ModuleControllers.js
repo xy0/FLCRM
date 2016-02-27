@@ -1,8 +1,7 @@
-angular.module("Mods")
+angular.module("flcrm.moduleControllers")
 
 .controller('defaultModuleCtrl', function($scope, container, state) {
   $scope.user = state.user || null;
-  console.log(state);
 
   container.layoutManager.eventHub.on( 'userSelected', function( user ){
     $scope.user = user;
@@ -51,10 +50,16 @@ angular.module("Mods")
     }
     $scope.iframeURL = $sce.trustAsResourceUrl(url);
   }
-  
+
 })
 
 .controller("uploaderModuleCtrl", function($scope) {
+
+
+})
+
+.controller("textChatterCtrl", function($scope) {
+
 
 
 })

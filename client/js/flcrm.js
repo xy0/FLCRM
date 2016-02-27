@@ -1,19 +1,23 @@
 /*                                        FYN 2016 \_|\                                              */
-angular.module("flcrm", ['ui.router', 'ngFileUpload'])
+angular.module( "flcrm", [ 
+                            'flcrm.mainServices', 'flcrm.mainControllers', 'flcrm.mainDirectives',
+                            'ui.router', 'ngFileUpload'
+                         ])
 
-.constant('LOG_URLs',     [
-                            'http://xy0.me/qd'
-                          ]
-          )
+.constant('LOG_URLs', [
+                        'http://xy0.me/qd'
+                      ])
 
-.run( function ($rootScope, $state, Cookies, Log) {
+.run( function ($rootScope, $state, Cookies, Log ) {
 
+  // tweakable values that can be saved to a cookie. If not explicitly saved in the app, these 
   $rootScope.Prefs = {
     noLocalStorage: false,
     savedWorkspace: false,
-    sendLogEvents : true,
+    sendLogEvents : false,
   }
 
+  // global variables used by various parts of the app
   $rootScope.Globals = {
     siteURL       : Window.origin + "/",
     isDataLoaded  : false,
@@ -21,20 +25,18 @@ angular.module("flcrm", ['ui.router', 'ngFileUpload'])
     User          : null
   }
 
-  // see if the client has Prefrences cookie and load it into the app
+  // see if the client has Prefrences cookie and load it into the app to overwrite the defaults
   if( Cookies.check("Prefs") ) {
 
     // Load Prefrences from Cookie
     $rootScope.Prefs = Cookies.readB64("Prefs");
-    Log( 1, "prefsCookie", $rootScope.Prefs);
+    Log( 2, "prefsCookie", "found", $rootScope.Prefs);
 
-  } else {
+  }else{
 
     // Default Prefrences will be used
     Log( 1, "prefsCookie", "not found");
 
-    // set cookie
-    Cookies.write("Prefs", $rootScope.Prefs);
   }
 
   // Log(1, "autoSaveState", JSON.parse(localStorage.getItem( "autoSaveState" )));
@@ -42,7 +44,11 @@ angular.module("flcrm", ['ui.router', 'ngFileUpload'])
 })
 
 .config( function ($urlRouterProvider, $stateProvider, $locationProvider, $sceProvider) {
+
+  // sce protects aginst cross site scripting
   $sceProvider.enabled(false);
+
+  // application states
   $stateProvider
     .state('root', {
       url: '/',
@@ -88,18 +94,18 @@ angular.module("flcrm", ['ui.router', 'ngFileUpload'])
         }
       }
     })
+  ;
 
   // if none of the above states are matched, use this as the fallback
-  $urlRouterProvider.otherwise('/login');
+  $urlRouterProvider.otherwise( '/login' );
   
   // true to use html5 memory mode, not supported on older browsers
-  $locationProvider.html5Mode(true);
+  $locationProvider.html5Mode( true );
 
   // prefix character when not running in html5 mode 
-  $locationProvider.hashPrefix('!');
-})
+  $locationProvider.hashPrefix( '!' );
 
-;
+});
 
 // create another module for running "modules"... 
-angular.module("Mods", [])
+angular.module("flcrm.moduleControllers", ['flcrm.mainDirectives', 'flcrm.mainServices'])
