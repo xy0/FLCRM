@@ -52,9 +52,14 @@ angular.module("flcrm.mainControllers", [])
 
 })
 
-.controller("mainCtrl", function($scope, $rootScope, $timeout, Log){
+.controller("mainCtrl", function($scope, $rootScope){
 
   $rootScope.Globals.isDataLoaded = true;
+
+})
+
+.controller("modulesCtrl", function($scope, $rootScope, $timeout, Log){
+
 
   var defaultConfig = {
     content:[
@@ -216,7 +221,6 @@ angular.module("flcrm.mainControllers", [])
   addMenuItem( 'iFramer', defaultModuleConfig, "iFramer" );
   //addMenuItem( 'uploader', defaultModuleConfig, "Uploader" );
   addMenuItem( 'textChatter', defaultModuleConfig, "Chat" );
-
 })
 
 .controller("emptyCtrl", function($scope, $rootScope, $timeout) {

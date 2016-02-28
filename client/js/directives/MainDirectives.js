@@ -74,7 +74,7 @@ angular.module("flcrm.mainDirectives", [])
     restrict: 'E',
     template: '<expanding-text-area content="newMessage"/>'
             + '<span> {{response}} </span>'
-            + '<div ng-repeat = "message in messages">'
+            + '<div ng-repeat = "message in messages | orderBy:'$index'" >'
             + '  <span> {{ message.sender }}: {{ message.content }} </span>'
             + '</div>'
     ,
@@ -83,7 +83,7 @@ angular.module("flcrm.mainDirectives", [])
     },
     link: function($scope, $element, $attributes){
 
-      $scope.messages = [ {content: "asdf", sender: "cy"}, {content: "1234"} ]
+      $scope.messages = [ ]
 
       $scope.$watch('newMessage', function (newMessage) {
         if(newMessage){

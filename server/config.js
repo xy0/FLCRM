@@ -5,7 +5,7 @@ BunyanSlack = require('bunyan-slack'); // log send to slack
 var Config = {
   appName:          'XY0', 
   siteURL:          'xy0.me',
-  nodePort:         3000,
+  serverPort:       3000,
   forceHTTPS:       false,
   SSLPassphrase:    'password',
   SSLKeyLocation:   'cert.key',

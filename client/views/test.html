@@ -1,58 +1,59 @@
-<template type="text/html" id="spawnerModule">
-  <ul ng-controller="spawnerModuleCtrl" class="userlist">
-    <li ng-repeat="user in users" 
-        ng-click="select( user )"
-        ng-class="{selected:user.isSelected}"
-    >
-      {{user.name}}
-    </li>
-  </ul>
-  <ul id="menuContainer"></ul>
-</template>
+<div ng-controller="modulesCtrl">
+  <template type="text/html" id="spawnerModule">
+    <ul ng-controller="spawnerModuleCtrl" class="userlist">
+      <li ng-repeat="user in users" 
+          ng-click="select( user )"
+          ng-class="{selected:user.isSelected}"
+      >
+        {{user.name}}
+      </li>
+    </ul>
+    <ul id="menuContainer"></ul>
+  </template>
 
-<template type="text/html" id="defaultModule">
-  <div ng-controller="defaultModuleCtrl" class="userdetails">
-    <img src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/152047/{{user.img}}" width="100" height="100" />
-    <h2>{{user.name}}</h2>
-    <p>{{user.street}}</p>
-  </div>
-</template>
-
-<template type="text/html" id="iFramerModule">
-  <div ng-controller="iFramerModuleCtrl" class="iFramerModuleWindow fill-height" ng-click="enablePointerEvents = true">
-    <div class="fill-height" ng-class="{'no-pointer-events': !enablePointerEvents}">
-      <form ng-submit="changeIframeURL(iframeURLInput)">
-        <input type="text" class="persistantField col-xs-11" ng-model="iframeURLInput">
-        <button type="submit" class="btn btn-sm btn-default col-xs-1">Load</button>
-      </form>
-      <iframe width="100%" height="100%" frameBorder="0" class="padding-bottom-32px" ng-src="{{iframeURL}}"></iframe>
+  <template type="text/html" id="defaultModule">
+    <div ng-controller="defaultModuleCtrl" class="userdetails">
+      <img src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/152047/{{user.img}}" width="100" height="100" />
+      <h2>{{user.name}}</h2>
+      <p>{{user.street}}</p>
     </div>
-  </div>
-</template>
+  </template>
 
-<template type="text/html" id="textChatterModule">
-  <div ng-controller="textChatterCtrl" class="fill-height">
-
-    <chat />
-
-    
-  </div>
-</template>
-
-<template type="text/html" id="uploaderModule">
-  <div ng-controller="uploaderModuleCtrl" class="fill-height">
-
-    <div ngf-drop ngf-select ng-model="files" class="drop-box" 
-            ngf-drag-over-class="'dragover'" ngf-multiple="true" ngf-allow-dir="true"
-            accept="image/*,application/pdf" 
-            ngf-pattern="'image/*,application/pdf'">Drop pdfs or images here or click to upload</div>
-        <div ngf-no-file-drop>File Drag/Drop is not supported for this browser</div>
-        Files:
-        <ul>
-            <li ng-repeat="f in files" style="font:smaller">{{f.name}} {{f.$error}} {{f.$errorParam}}</li>
-        </ul>
-        Upload Log:
-        <pre>{{log}}</pre>
+  <template type="text/html" id="iFramerModule">
+    <div ng-controller="iFramerModuleCtrl" class="iFramerModuleWindow fill-height" ng-click="enablePointerEvents = true">
+      <div class="fill-height" ng-class="{'no-pointer-events': !enablePointerEvents}">
+        <form ng-submit="changeIframeURL(iframeURLInput)">
+          <input type="text" class="persistantField col-xs-11" ng-model="iframeURLInput">
+          <button type="submit" class="btn btn-sm btn-default col-xs-1">Load</button>
+        </form>
+        <iframe width="100%" height="100%" frameBorder="0" class="padding-bottom-32px" ng-src="{{iframeURL}}"></iframe>
+      </div>
     </div>
-  </div>
-</template>
+  </template>
+
+  <template type="text/html" id="textChatterModule">
+    <div ng-controller="textChatterCtrl" class="fill-height">
+
+      <chat></chat>
+      
+    </div>
+  </template>
+
+  <template type="text/html" id="uploaderModule">
+    <div ng-controller="uploaderModuleCtrl" class="fill-height">
+
+      <div ngf-drop ngf-select ng-model="files" class="drop-box" 
+              ngf-drag-over-class="'dragover'" ngf-multiple="true" ngf-allow-dir="true"
+              accept="image/*,application/pdf" 
+              ngf-pattern="'image/*,application/pdf'">Drop pdfs or images here or click to upload</div>
+          <div ngf-no-file-drop>File Drag/Drop is not supported for this browser</div>
+          Files:
+          <ul>
+              <li ng-repeat="f in files" style="font:smaller">{{f.name}} {{f.$error}} {{f.$errorParam}}</li>
+          </ul>
+          Upload Log:
+          <pre>{{log}}</pre>
+      </div>
+    </div>
+  </template>
+</div>

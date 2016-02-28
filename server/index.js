@@ -1,7 +1,7 @@
 var APP_CONFIG = require('./config.js');
 
-// ------------------------------Devetry-------------------------------------
-// DB                      \_|\ mimi 2015 ~cs
+// ------------------------------  FYN  -------------------------------------
+// DB                     \_|\ FLCRM 2016 xy0~C
 // --------------------------------------------------------------------------
 /*
 var mongoose = require('mongoose');
@@ -13,22 +13,33 @@ mongoose.connect(APP_CONFIG.dbURL, {
 // --------------------------------------------------------------------------
 // APP
 // --------------------------------------------------------------------------
+
 var express                       = require('express');
 var app                           = express();
-var fs                            = require('fs'); // flow file uploads
-var bodyParser                    = require('body-parser');
-var cookieParser                  = require('cookie-parser');
-var session                       = require('express-session');
-var passport                      = require('passport');
-var auth                          = require('./security/passportConfig.js'); // Passport authentication configuration
-var multipart                     = require('connect-multiparty'); // flow file uploads
-var multipartMiddleware           = multipart(); // flow file uploads
-var ACCESS_CONTROLL_ALLOW_ORIGIN  = false; // for cross-domain uploads
+var server                        = require('http').Server(app);
+var io                            = require('socket.io')(server); // websockets
 
-/*
-app.use(require('prerender-node')
-   .set('prerenderToken', APP_CONFIG.prerenderToken));
-*/
+var fs                            = require('fs'),
+    bodyParser                    = require('body-parser'),
+    cookieParser                  = require('cookie-parser'),
+    session                       = require('express-session'),
+    passport                      = require('passport'),
+    auth                          = require('./security/passportConfig.js'),
+    multipart                     = require('connect-multiparty'), // flow file uploads
+    multipartMiddleware           = multipart(), // flow file uploads
+    ACCESS_CONTROLL_ALLOW_ORIGIN  = false; // for cross-domain uploads
+
+
+app.set('views', __dirname + '/views');
+app.set('view engine', 'jade');
+app.set('view options', {
+  layout: false
+});
+//app.use(express.bodyParser());
+//app.use(express.methodOverride());
+app.use(express.static(__dirname + '/public'));
+//app.use(app.router);
+
 app.use(express.static('../client'));
 // app.use('/data/img', express.static('../server/img'));
 // app.use(bodyParser.urlencoded({extended: false}));
@@ -41,6 +52,20 @@ app.use(session({
 }));
 app.use(passport.initialize()) // Passport base
 app.use(passport.session()); // Passport session management
+/*
+app.use(require('prerender-node')
+   .set('prerenderToken', APP_CONFIG.prerenderToken));
+*/
+
+
+
+//app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
+
+
+// app.use(express.errorHandler());
+
+
+
 
 APP_CONFIG.log.info("Application Starting");
 
@@ -57,7 +82,7 @@ app.get('*', function (req, res) {
 
    // send the request to the root index file, defineing the current working directory
   //  and and replacing the last part of the path with the client directory 
-  res.sendFile('index.html', { root: __dirname.replace( __dirname.split(/[\\/]/).pop(), 'client') });  
+  res.sendFile('index.html', { root: __dirname.replace( __dirname.split(/[\\/]/).pop(),'client') });  
 });
 
 
@@ -68,6 +93,23 @@ app.get('*', function (req, res) {
 // catch any uncaught errors
 process.on('uncaughtException', function(err, data) {
   APP_CONFIG.log.fatal("Application Error", err, data, err.stack);
+});
+
+
+// Socket.io Communication
+io.on('connection', function(){ /* … */ });
+
+// start a http server
+// var server = app.listen(APP_CONFIG.serverPort, function (){
+//   var host = server.address().address;
+//   var port = server.address().port;
+//   console.log('API available at http://%s:%s HTTP', host, port);
+// });
+
+server.listen(APP_CONFIG.serverPort, function (){
+  var host = server.address().address;
+  var port = server.address().port;
+  console.log('API available at http://%s:%s HTTP', host, port);
 });
 
 // if forceHTTPS is enabled, the app will redirect all insecure connections to HTTPS
@@ -86,10 +128,3 @@ if(!!APP_CONFIG.forceHTTPS) {
     console.log('API available at http://%s:%s HTTPS');
   })
 }
-
-// start a http server
-var server = app.listen(APP_CONFIG.nodePort, function (){
-  var host = server.address().address;
-  var port = server.address().port;
-  console.log('API available at http://%s:%s HTTP', host, port);
-});

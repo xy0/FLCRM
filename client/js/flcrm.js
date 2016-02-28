@@ -10,6 +10,8 @@ angular.module( "flcrm", [
 
 .run( function ($rootScope, $state, Cookies, Log ) {
 
+  console.log('        \\_|\\'        );
+
   // tweakable values that can be saved to a cookie. If not explicitly saved in the app, these 
   $rootScope.Prefs = {
     noLocalStorage: false,
