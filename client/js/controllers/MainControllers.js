@@ -41,7 +41,32 @@ angular.module("flcrm.mainControllers", [])
     }
   }
 
-})
+  $scope.login = function(loginForm) {
+
+    console.log(loginForm);
+
+    // format the message properly
+    var msg = qdMsg.format (
+      {
+        type: 2,
+        src : $rootScope.Globals.siteURL,
+        pri : 2,
+        msg : [
+                'userLogin', 
+                loginForm.emailAddress,
+                loginForm.password
+              ],
+      }
+    );
+
+    console.log(msg);
+    // send message to server
+    // API.http(LOG_URLs[l], 'post', msg)
+    // .then( function(res) {
+    //   // console.log(res); // remove when not debuging
+    // });
+
+}
 
 .controller("toggleController", function($scope){
   $scope.showToggle = false;

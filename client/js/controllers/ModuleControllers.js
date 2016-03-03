@@ -60,7 +60,39 @@ angular.module("flcrm.moduleControllers")
 
 .controller("textChatterCtrl", function($scope) {
 
+  $scope.getMessages = function() {
+    $scope.Messages = [
+      {
 
+         v:  0,
+       key: false,
+      type: 30,
+      date: (new Date).getTime(),
+       src: '/',
+       dst: '/',
+       pri:  0,
+       usr: 'cytest',
+       msg: 'This is an old message'
+
+      },
+      {
+
+         v:  0,
+       key: false,
+      type: 30,
+      date: (new Date).getTime(),
+       src: '/',
+       dst: '/',
+       pri:  0,
+       usr: 'cytest',
+       msg: 'A message below (after) the other one.'
+
+      }
+
+    ]
+  }
+
+  $scope.getMessages();
 
 })
 

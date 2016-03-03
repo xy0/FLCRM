@@ -42,8 +42,8 @@ app.use(express.static(__dirname + '/public'));
 
 app.use(express.static('../client'));
 // app.use('/data/img', express.static('../server/img'));
-// app.use(bodyParser.urlencoded({extended: false}));
-app.use(bodyParser.json());// Static content
+//app.use(bodyParser.urlencoded({extended: false}));
+app.use(bodyParser.json());
 app.use(cookieParser());
 app.use(session({
   secret: APP_CONFIG.sessionSecret,
@@ -56,15 +56,6 @@ app.use(passport.session()); // Passport session management
 app.use(require('prerender-node')
    .set('prerenderToken', APP_CONFIG.prerenderToken));
 */
-
-
-
-//app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
-
-
-// app.use(express.errorHandler());
-
-
 
 
 APP_CONFIG.log.info("Application Starting");
@@ -97,7 +88,7 @@ process.on('uncaughtException', function(err, data) {
 
 
 // Socket.io Communication
-io.on('connection', function(){ /* … */ });
+//io.on('connection', function(){ /* … */ });
 
 // start a http server
 // var server = app.listen(APP_CONFIG.serverPort, function (){

@@ -29,7 +29,10 @@ angular.module("flcrm.mainDirectives", [])
 .directive('expandingTextArea', function() {
   return {
     restrict: 'E',
-    template: '<div class="expandingArea"><pre><span></span><br></pre><textarea ng-model="textData"></textarea></div>',
+    template: '<div class="expandingArea">'
+            + '  <pre><span></span><br></pre>'
+            + '  <textarea ng-model="textData"></textarea>'
+            + '</div>',
     scope: {
       content: '='
     },
@@ -74,7 +77,7 @@ angular.module("flcrm.mainDirectives", [])
     restrict: 'E',
     template: '<expanding-text-area content="newMessage"/>'
             + '<span> {{response}} </span>'
-            + '<div ng-repeat = "message in messages | orderBy:'$index'" >'
+            + '<div ng-repeat = "message in messages" >'
             + '  <span> {{ message.sender }}: {{ message.content }} </span>'
             + '</div>'
     ,

@@ -10,7 +10,7 @@ angular.module( "flcrm", [
 
 .run( function ($rootScope, $state, Cookies, Log ) {
 
-  console.log('        \\_|\\'        );
+  console.log('        \\_|\\         ');
 
   // tweakable values that can be saved to a cookie. If not explicitly saved in the app, these 
   $rootScope.Prefs = {
@@ -56,7 +56,7 @@ angular.module( "flcrm", [
       url: '/',
       views: {
         'content': {
-          templateUrl: 'views/root.html',
+          templateUrl: 'tpl/root.html',
           controller: 'mainCtrl'
         }
       }
@@ -65,11 +65,11 @@ angular.module( "flcrm", [
       url: '/demo',
       views: {
         'navigation': {
-          templateUrl: 'views/navigation.html',
+          templateUrl: 'tpl/navigation.html',
           controller: 'navCtrl'
         },
         'content': {
-          templateUrl: 'views/demo.html',
+          templateUrl: 'tpl/demo.html',
           controller: 'emptyCtrl'
         }
       }
@@ -78,11 +78,11 @@ angular.module( "flcrm", [
       url: '/test',
       views: {
         'navigation': {
-          templateUrl: 'views/navigation.html',
+          templateUrl: 'tpl/navigation.html',
           controller: 'navCtrl'
         },
         'content': {
-          templateUrl: 'views/test.html',
+          templateUrl: 'tpl/test.html',
           controller: 'mainCtrl'
         }
       }
@@ -91,7 +91,7 @@ angular.module( "flcrm", [
       url: '/sidebar',
       views: {
         'content': {
-          templateUrl: 'views/sidebar.html',
+          templateUrl: 'tpl/sidebar.html',
           controller: 'staticDemoCtrl'
         }
       }
