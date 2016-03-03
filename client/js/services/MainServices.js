@@ -136,8 +136,8 @@ angular.module("flcrm.mainServices", [])
          key: false,
         type:  0,
         date: (new Date).getTime(),
-         src: '',
-         dst: '',
+         src: '/',
+         dst: '/',
          pri:  0,
          usr: '',
          msg: ''

@@ -10,6 +10,10 @@ mongoose.connect(APP_CONFIG.dbURL, {
   pass: APP_CONFIG.dbPass
 });
 */
+
+var pg = require('pg');
+var connectionString = 'pg://postgrestest:h0Qili@localhost/test';
+
 // --------------------------------------------------------------------------
 // APP
 // --------------------------------------------------------------------------
@@ -66,7 +70,7 @@ APP_CONFIG.log.info("Application Starting");
 var qdAPI = require ('./api/qdAPI.js');
 
 app.post('/qd', qdAPI.new) // log client application events
-
+app.get('/qd', qdAPI.get) // temp list
 
 // if no route is specified, send the request to angular's index (for html5 states)
 app.get('*', function (req, res) {

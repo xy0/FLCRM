@@ -1,6 +1,9 @@
 var APP_CONFIG = require('../config.js');
 var request = require('request');
 
+var pg = require('pg');
+var connectionString = 'pg://postgrestest:h0Qili@localhost/test';
+
 var postAPI = function(toSlack) {
 
   request.post({
@@ -139,6 +142,58 @@ function tryParseJSON (jsonString){
     return false;
 }
 
+var qdpb = {
+  write: function(fields) {
+
+    var client = new pg.Client(connectionString);
+    client.connect();
+
+    client.query(`
+      CREATE TABLE IF NOT EXISTS testfeed(
+        v    smallint, 
+        key  varchar(256),
+        type integer,
+        date bigint,
+        src  varchar(256),
+        dst  varchar(256),
+        pri  smallint,
+        usr  varchar(128),
+        chk  varchar(256),
+        msg  text
+      )`);
+
+    client.query(`
+      INSERT INTO testfeed
+        (v, key, type, date, src, dst, pri, usr, chk, msg) 
+        values($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
+        [
+          fields.v, 
+          fields.key,
+          fields.type,
+          fields.date,
+          fields.src,
+          fields.dst,
+          fields.pri,
+          fields.usr,
+          fields.chk,
+          fields.msg
+        ]
+    );
+    var query = client.query(`
+      SELECT *
+      FROM testfeed 
+      ORDER BY date, chk
+    `);
+
+    query.on("row", function (row, result) {
+        result.addRow(row);
+    });
+    query.on("end", function (result) {
+      client.end();
+    });
+  }
+}
+
 var Req = {
   check: function(request, cb) {
 
@@ -179,17 +234,27 @@ var Req = {
 
   parse: function(parsedRequest, err, cb) {
 
-    var fields = {};
+    // field defaults
+    var fields = {
+         v:  0,
+       key: '',
+      type:  0,
+      date: (new Date).getTime(),
+       src: '/',
+       dst: '/',
+       pri:  0,
+       usr: '',
+       chk: 'dd1e48d8cb7ae1d41bbbb71f03c6c540',
+       msg: ''
+    }
 
     // iterate through the payload fields
     Object.keys(parsedRequest).forEach(function(key,index) {
       fields[key] = parsedRequest[key];
     });
 
-    if(fields.length == parsedRequest.length) {
-      
-      cb(false, fields);
-    }
+    cb(false, fields);
+
   },
 
   process: function(fields, err, cb) {
@@ -202,27 +267,27 @@ var Req = {
       //console.log(key, fields[key]);
     });
 
-    if(totalFields < 1) {
+    console.log(fields);
 
-      console.log(fields);
+    qdpb.write(fields);
 
-      var msgContent = fields['msg'];
+    var msgContent = fields['msg'];
 
-      postAPI(msgContent);
+    postAPI(msgContent);
 
-      var replyMsg = {
-        type: fields.type + 1,
-        pri : 0,
-        msg : {
-                s: 200,
-                m: 'Ok'
-              }
-      }
-
-      var replyEnc = qdMsg.format(replyMsg);
-
-      cb( false, {res: replyMsg.msg, enc:replyEnc} );
+    var replyMsg = {
+      type: fields.type + 1,
+      pri : 0,
+      msg : {
+              s: 200,
+              m: 'Ok'
+            }
     }
+
+    var replyEnc = qdMsg.format(replyMsg);
+
+    cb( false, {res: replyMsg.msg, enc:replyEnc} );
+
   },
 
   reply: function(res, reply, err, cb) {
@@ -235,7 +300,7 @@ var Req = {
 
 var qdAPI = {
 
-  new: function(req, res, next){
+  new: function(req, res, next) {
     Req.check(req.body, function(err, request) {
       if(err) APP_CONFIG.log.error(err)
       else {
@@ -248,8 +313,28 @@ var qdAPI = {
         })
       }
     })
-  }
+  },
 
+  get: function (req, res, next) {
+    var client = new pg.Client(connectionString);
+    client.connect();
+    
+    var query = client.query(`
+      SELECT *
+      FROM testfeed 
+      ORDER BY date DESC
+      LIMIT 10
+    `);
+
+    query.on("row", function (row, result) {
+        result.addRow(row);
+    });
+    query.on("end", function (result) {
+        res.status(200).send(result.rows, null, "    ").end();
+        client.end();
+    });
+
+  }
   
 }
 module.exports = qdAPI;
