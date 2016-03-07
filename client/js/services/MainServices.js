@@ -3,9 +3,11 @@ angular.module("flcrm.mainServices", [])
  // Proper logging service, can be configured to dispatch errors and certain events
 // replaces the need to console log everyehre
 .factory('Log', function($rootScope, API, qdMsg, LOG_URLs) {
-  var Log = function (level, event, result) {
+  var Log = function (level, event, result, detail) {
 
-    var sendToAPIs = function(level, event, result) {
+    detail = detail || '';
+
+    var sendToAPIs = function(level, event, result, detail) {
 
       // if not disabled, send the events to the master logger qd
       if( $rootScope.Prefs.sendLogEvents == true) {
@@ -16,15 +18,19 @@ angular.module("flcrm.mainServices", [])
           // format the message properly
           var msg = qdMsg.format (
             {
-              type: 99,
+              type: 60,
               src : $rootScope.Globals.siteURL,
               pri : level,
-              msg : {event:event, result: result}
+              msg : {
+                    e: event,
+                    r: result,
+                    d: detail
+              }
             }
           );
 
           // send message to server
-          API.http(LOG_URLs[l], 'post', msg)
+          API.http(LOG_URLs[l], 'post', {"enc": msg})
           .then( function(res) {
             // console.log(res); // remove when not debuging
           });
@@ -52,6 +58,25 @@ angular.module("flcrm.mainServices", [])
   }
 
   return Log;
+})
+
+.factory('Websocket', function (socketFactory) {
+  var socket = socketFactory();
+  socket.forward('broadcast');
+  return socket;
+})
+
+.factory('SAPI', function (Websocket) {
+  var functions = {
+    emit: function(name, object) {
+      Websocket.emit( name, object);
+    },
+    on: function(name, response) {
+      Websocket.on(name, response);
+    }
+  };
+
+  return functions;
 })
 
 .factory('qdMsg', function() {
@@ -117,14 +142,36 @@ angular.module("flcrm.mainServices", [])
       return out.join("");
   }
 
+  function tryParseJSON (jsonString){
+      try {
+          var o = JSON.parse(jsonString);
+
+          // Handle non-exception-throwing cases:
+          // Neither JSON.parse(false) or JSON.parse(1234) throw errors, hence the type-checking,
+          // but... JSON.parse(null) returns 'null', and typeof null === "object", 
+          // so we must check for that, too.
+          if (o && typeof o === "object" && o !== null) {
+              return o;
+          }
+      }
+      catch (e) { }
+
+      return false;
+  }
+
   var qdEncode = function(s) {
-    return lzw_encode(
-            b64EncodeUnicode(s)
-           );
+
+    // return s;
+
+    var string = JSON.stringify(s);
+    var compressed = lzw_encode( string );
+    var b64 = b64EncodeUnicode( compressed );
+    return ( b64 );
+
   }
 
   var qdDecode = function(s) {
-
+    return lzw_decode( b64DecodeUnicode(s) );
   }
 
 
@@ -157,9 +204,65 @@ angular.module("flcrm.mainServices", [])
 
       return qdEncode(msg);
     },
+    check: function(request, cb) {
 
-    parse: function() {
-      //
+      // if the request exists
+      if(request) {
+
+        // if enc object exists in request
+        var payload = {};
+        if( payload = request.enc ) {
+
+          // if it is already an object
+          if( typeof payload === "object" ) {
+
+            cb(false, payload);
+
+          } else {
+
+            var decoded = qdDecode(payload);
+
+            // if it is JSON
+            var parsedRequest = tryParseJSON(decoded);
+            if(parsedRequest) {
+              cb(false, parsedRequest);
+            
+            } else {
+
+              cb('EREQNOTJSON');
+            }
+          }
+        } else {
+          cb('EREQNOTENC');
+        }
+      } else {
+
+        cb("EREQEMPTY");
+      }
+
+    },
+    parse: function(parsedRequest, cb) {
+
+      // field defaults
+      var fields = {
+           v:  0,
+         key: '',
+        type:  0,
+        date: (new Date).getTime(),
+         src: '/',
+         dst: '/',
+         pri:  0,
+         usr: '',
+         chk: 'dd1e48d8cb7ae1d41bbbb71f03c6c540',
+         msg: ''
+      }
+
+      // iterate through the payload fields
+      Object.keys(parsedRequest).forEach(function(key,index) {
+        fields[key] = parsedRequest[key];
+      });
+
+      cb(false, fields);
     }
   }
 

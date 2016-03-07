@@ -1,14 +1,14 @@
 /*                                        FYN 2016 \_|\                                              */
 angular.module( "flcrm", [ 
                             'flcrm.mainServices', 'flcrm.mainControllers', 'flcrm.mainDirectives',
-                            'ui.router', 'ngFileUpload'
+                            'ui.router', 'ngFileUpload', 'btford.socket-io'
                          ])
 
 .constant('LOG_URLs', [
                         'http://xy0.me/qd'
                       ])
 
-.run( function ($rootScope, $state, Cookies, Log ) {
+.run( function ($rootScope, $state, Cookies, Log, SAPI, qdMsg) {
 
   console.log('        \\_|\\         ');
 
@@ -40,6 +40,18 @@ angular.module( "flcrm", [
     Log( 1, "prefsCookie", "not found");
 
   }
+
+  console.log('connecting...');
+  var msg = qdMsg.format({
+    type:  60,
+     msg: '~ Connecting to Web Socket...'
+  });
+  SAPI.emit('qdMsg', {"enc": msg});
+
+  SAPI.on('qdRes', function (res) {
+    console.log('server:', res);
+  });
+
 
   // Log(1, "autoSaveState", JSON.parse(localStorage.getItem( "autoSaveState" )));
 
@@ -110,4 +122,5 @@ angular.module( "flcrm", [
 });
 
 // create another module for running "modules"... 
-angular.module("flcrm.moduleControllers", ['flcrm.mainDirectives', 'flcrm.mainServices'])
+angular.module("flcrm.moduleControllers", [ 'flcrm.mainServices', 'flcrm.mainDirectives', 
+                'btford.socket-io' ])

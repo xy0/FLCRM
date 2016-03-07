@@ -112,19 +112,6 @@ function lzw_decode(s) {
     return out.join("");
 }
 
-var qdEncode = function(s) {
-
-  var string = JSON.stringify(s);
-  var compressed = lzw_encode( string );
-  var b64 = b64EncodeUnicode( compressed );
-  return ( b64 );
-}
-
-var qdDecode = function(s) {
-
-  return lzw_decode( b64DecodeUnicode(s) );
-}
-
 function tryParseJSON (jsonString){
     try {
         var o = JSON.parse(jsonString);
@@ -140,6 +127,19 @@ function tryParseJSON (jsonString){
     catch (e) { }
 
     return false;
+}
+
+var qdEncode = function(s) {
+
+  var string = JSON.stringify(s);
+  var compressed = lzw_encode( string );
+  var b64 = b64EncodeUnicode( compressed );
+  return ( b64 );
+}
+
+var qdDecode = function(s) {
+
+  return lzw_decode( b64DecodeUnicode(s) );
 }
 
 var qdpb = {
@@ -191,7 +191,31 @@ var qdpb = {
     query.on("end", function (result) {
       client.end();
     });
+  },
+
+  read: function(type, limit, cb) {
+
+    var client = new pg.Client(connectionString);
+    client.connect();
+    
+    var query = client.query(`
+      SELECT *
+      FROM testfeed 
+      WHERE type = ` + type + `
+      ORDER BY date DESC
+      LIMIT ` + limit + `
+    `);
+
+    query.on("row", function (row, result) {
+      result.addRow(row);
+    });
+    query.on("end", function (result) {
+      cb(result.rows);
+      client.end();
+    });
+
   }
+
 }
 
 var Req = {
@@ -254,7 +278,6 @@ var Req = {
     });
 
     cb(false, fields);
-
   },
 
   process: function(fields, err, cb) {
@@ -272,28 +295,47 @@ var Req = {
     qdpb.write(fields);
 
     var msgContent = fields['msg'];
-
     postAPI(msgContent);
 
-    var replyMsg = {
-      type: fields.type + 1,
-      pri : 0,
-      msg : {
-              s: 200,
-              m: 'Ok'
-            }
+    if(fields.msg == '~getMsgs') {
+
+      qdpb.read(10, 20, function(data) {
+
+        var replyMsg = {
+          type: fields.type + 1,
+          pri : 0,
+          msg : { "chatMessages": data }
+        }
+
+        var replyEnc = qdMsg.format(replyMsg);
+
+        cb( false, {res: replyMsg.msg, enc:replyEnc} );
+      });
+
+    } else {
+
+      var replyMsg = {
+        type: fields.type + 1,
+        pri : 0,
+        msg : {
+                s: 200,
+                m: 'Ok'
+              }
+      }
+      var replyEnc = qdMsg.format(replyMsg);
+      cb( false, {res: replyMsg.msg, enc:replyEnc} );
     }
-
-    var replyEnc = qdMsg.format(replyMsg);
-
-    cb( false, {res: replyMsg.msg, enc:replyEnc} );
-
   },
 
   reply: function(res, reply, err, cb) {
     res.status(reply.res.s).send(reply).end();
     cb(false);
+  },
 
+  sReply: function(socket, reply, err, cb) {
+    socket.emit('qdMsg', reply);
+    socket.broadcast.emit('qdMsg', reply);
+    cb(false);
   }
 }
 
@@ -323,7 +365,7 @@ var qdAPI = {
       SELECT *
       FROM testfeed 
       ORDER BY date DESC
-      LIMIT 10
+      LIMIT 100
     `);
 
     query.on("row", function (row, result) {
@@ -334,6 +376,20 @@ var qdAPI = {
         client.end();
     });
 
+  },
+  sGet: function(socket, msg) {
+    Req.check(msg, function(err, request) {
+      if(err) APP_CONFIG.log.error(err)
+      else {
+        Req.parse(request, err, function(err, fields) {
+          Req.process(fields, err, function(err, reply) {
+            Req.sReply(socket, reply, err, function(err) {
+              if(err) APP_CONFIG.log.error(arguments.callee.toString(), err);
+            })
+          })
+        })
+      }
+    })
   }
   
 }

@@ -72,30 +72,39 @@ angular.module("flcrm.mainDirectives", [])
   }
 })
 
-.directive('chat', function($rootScope, API) {
+.directive('chat', function($rootScope, API, SAPI, qdMsg) {
   return {
     restrict: 'E',
     template: '<expanding-text-area content="newMessage"/>'
             + '<span> {{response}} </span>'
             + '<div ng-repeat = "message in messages" >'
-            + '  <span> {{ message.sender }}: {{ message.content }} </span>'
+            + '  <span> {{ message.usr }}: {{ message.msg }} </span>'
             + '</div>'
     ,
     scope: {
-      update: '@'
+      update: '@',
+      messages: '='
     },
     link: function($scope, $element, $attributes){
 
-      $scope.messages = [ ]
-
       $scope.$watch('newMessage', function (newMessage) {
         if(newMessage){
+
           var message = {
-            content: newMessage,
-            sender: 'cytest'
+            msg: newMessage,
+            usr: 'cytest'
           }
-          $scope.messages.push(message);
+          $scope.messages.unshift(message);
           $scope.newMessage = false;
+
+          var msg = qdMsg.format({
+            type: 10,
+             src: '/',
+             dst: '/',
+             usr: message.usr,
+             msg: message.msg
+          });
+          SAPI.emit('qdMsg', {enc: msg});
         }
       })
 

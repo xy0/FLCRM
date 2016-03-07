@@ -3,16 +3,18 @@ var APP_CONFIG = require('./config.js');
 // ------------------------------  FYN  -------------------------------------
 // DB                     \_|\ FLCRM 2016 xy0~C
 // --------------------------------------------------------------------------
-/*
+
+/* // mongo database
 var mongoose = require('mongoose');
 mongoose.connect(APP_CONFIG.dbURL, {
   user: APP_CONFIG.dbName,
   pass: APP_CONFIG.dbPass
 });
 */
-
+/*
 var pg = require('pg');
 var connectionString = 'pg://postgrestest:h0Qili@localhost/test';
+*/
 
 // --------------------------------------------------------------------------
 // APP
@@ -22,7 +24,6 @@ var express                       = require('express');
 var app                           = express();
 var server                        = require('http').Server(app);
 var io                            = require('socket.io')(server); // websockets
-
 var fs                            = require('fs'),
     bodyParser                    = require('body-parser'),
     cookieParser                  = require('cookie-parser'),
@@ -39,11 +40,7 @@ app.set('view engine', 'jade');
 app.set('view options', {
   layout: false
 });
-//app.use(express.bodyParser());
-//app.use(express.methodOverride());
 app.use(express.static(__dirname + '/public'));
-//app.use(app.router);
-
 app.use(express.static('../client'));
 // app.use('/data/img', express.static('../server/img'));
 //app.use(bodyParser.urlencoded({extended: false}));
@@ -56,10 +53,9 @@ app.use(session({
 }));
 app.use(passport.initialize()) // Passport base
 app.use(passport.session()); // Passport session management
-/*
-app.use(require('prerender-node')
-   .set('prerenderToken', APP_CONFIG.prerenderToken));
-*/
+
+// app.use(require('prerender-node')
+//    .set('prerenderToken', APP_CONFIG.prerenderToken)); 
 
 
 APP_CONFIG.log.info("Application Starting");
@@ -92,7 +88,12 @@ process.on('uncaughtException', function(err, data) {
 
 
 // Socket.io Communication
-//io.on('connection', function(){ /* … */ });
+//var socket = require('./socket/base');
+io.on('connection', function(socket) {
+  socket.on('qdMsg', function(msg) {
+    qdAPI.sGet(socket, msg);
+  } )
+});
 
 // start a http server
 // var server = app.listen(APP_CONFIG.serverPort, function (){

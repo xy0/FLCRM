@@ -58,41 +58,40 @@ angular.module("flcrm.moduleControllers")
 
 })
 
-.controller("textChatterCtrl", function($scope) {
+.controller("textChatterCtrl", function($scope, SAPI, qdMsg) {
+
+  $scope.messages = [];
+
+  SAPI.on('qdMsg', function(msg) {
+    qdMsg.check(msg, function(err, checkedMsg) {
+      if(err) console.log(err);
+      else {
+        qdMsg.parse(checkedMsg, function(err, parsedMsg) {
+          console.log(parsedMsg);
+          if( parsedMsg.type = 3 ) {
+            if ( "chatMessages" in parsedMsg.msg ) {
+              $scope.messages = parsedMsg.msg.chatMessages;
+            }
+          }
+        })
+      }
+    })
+  });
 
   $scope.getMessages = function() {
-    $scope.Messages = [
-      {
-
-         v:  0,
-       key: false,
-      type: 30,
-      date: (new Date).getTime(),
+    var msg = qdMsg.format({
+      type:  2,
        src: '/',
        dst: '/',
-       pri:  0,
-       usr: 'cytest',
-       msg: 'This is an old message'
-
-      },
-      {
-
-         v:  0,
-       key: false,
-      type: 30,
-      date: (new Date).getTime(),
-       src: '/',
-       dst: '/',
-       pri:  0,
-       usr: 'cytest',
-       msg: 'A message below (after) the other one.'
-
-      }
-
-    ]
+       msg: '~getMsgs'
+    });
+    SAPI.emit('qdMsg', {enc: msg});
   }
 
   $scope.getMessages();
+
+
+
 
 })
 

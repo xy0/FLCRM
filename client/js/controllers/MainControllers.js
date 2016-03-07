@@ -1,7 +1,7 @@
 angular.module("flcrm.mainControllers", [])
 
 // the top-most navbar controller
-.controller('navCtrl', function ($scope, $rootScope, Page, Log, Cookies){
+.controller('navCtrl', function ($scope, $rootScope, Page, Log, Cookies, SAPI){
 
   $scope.changePage = function (page){
     Page.change(page);
@@ -46,18 +46,16 @@ angular.module("flcrm.mainControllers", [])
     console.log(loginForm);
 
     // format the message properly
-    var msg = qdMsg.format (
-      {
-        type: 2,
-        src : $rootScope.Globals.siteURL,
-        pri : 2,
-        msg : [
-                'userLogin', 
-                loginForm.emailAddress,
-                loginForm.password
-              ],
-      }
-    );
+    var msg = qdMsg.format ({
+      type: 2,
+      src : $rootScope.Globals.siteURL,
+      pri : 2,
+      msg : [
+              'userLogin', 
+              loginForm.emailAddress,
+              loginForm.password
+            ],
+    });
 
     console.log(msg);
     // send message to server
@@ -66,7 +64,8 @@ angular.module("flcrm.mainControllers", [])
     //   // console.log(res); // remove when not debuging
     // });
 
-}
+  }
+})
 
 .controller("toggleController", function($scope){
   $scope.showToggle = false;
