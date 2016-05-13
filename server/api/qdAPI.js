@@ -2,53 +2,17 @@ var APP_CONFIG = require('../config.js');
 var request = require('request');
 
 var pg = require('pg');
-var connectionString = 'pg://postgrestest:h0Qili@localhost/test';
+var connectionString = APP_CONFIG.dbURL;
 
-var postAPI = function(toSlack) {
-
+// post to external API handeler, like slack
+var postExternalAPI = function(toSlack) {
   request.post({
     headers: {'content-type' : 'application/x-www-form-urlencoded'},
-    url:     'https://hooks.slack.com/services/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',
+    url: APP_CONFIG.slackAPIURL,
     body: JSON.stringify({text: JSON.stringify(toSlack)})
   }, function(error, response, body){
     console.log(body);
   });
-
-}
-
-var qdMsg = {
-  format: function(fields){
-
-    var msg = {
-         v:  0,
-       key: false,
-      type:  0,
-      date: (new Date).getTime(),
-       src: '',
-       dst: '',
-       pri:  0,
-       usr: '',
-       msg: ''
-    }
-
-     // Visit non-inherited enumerable keys
-    //update msg properties as they are provided
-    Object.keys(msg).forEach(function(key) {
-      if(msg.hasOwnProperty(key)) {
-        Object.keys(fields).forEach(function(key) {
-          if(fields.hasOwnProperty(key)) {
-            msg[key] = fields[key];
-          }
-        });
-      }
-    })
-
-    return qdEncode(msg);
-  },
-
-  parse: function() {
-    //
-  }
 }
 
 function b64EncodeUnicode(str) {
@@ -61,85 +25,186 @@ function b64DecodeUnicode(str) {
 
 // LZW-compress a string
 function lzw_encode(s) {
-    var dict = {};
-    var data = (s + "").split("");
-    var out = [];
-    var currChar;
-    var phrase = data[0];
-    var code = 256;
-    for (var i=1; i<data.length; i++) {
-        currChar=data[i];
-        if (dict[phrase + currChar] != null) {
-            phrase += currChar;
-        }
-        else {
-            out.push(phrase.length > 1 ? dict[phrase] : phrase.charCodeAt(0));
-            dict[phrase + currChar] = code;
-            code++;
-            phrase=currChar;
-        }
+  var dict = {};
+  var data = (s + "").split("");
+  var out = [];
+  var currChar;
+  var phrase = data[0];
+  var code = 256;
+  for (var i=1; i<data.length; i++) {
+    currChar=data[i];
+    if (dict[phrase + currChar] != null) {
+        phrase += currChar;
+    } else {
+      out.push(phrase.length > 1 ? dict[phrase] : phrase.charCodeAt(0));
+      dict[phrase + currChar] = code;
+      code++;
+      phrase=currChar;
     }
-    out.push(phrase.length > 1 ? dict[phrase] : phrase.charCodeAt(0));
-    for (var i=0; i<out.length; i++) {
-        out[i] = String.fromCharCode(out[i]);
-    }
-    return out.join("");
+  }
+  out.push(phrase.length > 1 ? dict[phrase] : phrase.charCodeAt(0));
+  for (var i=0; i<out.length; i++) {
+    out[i] = String.fromCharCode(out[i]);
+  }
+  return out.join("");
 }
 
 // Decompress an LZW-encoded string
 function lzw_decode(s) {
-    var dict = {};
-    var data = (s + "").split("");
-    var currChar = data[0];
-    var oldPhrase = currChar;
-    var out = [currChar];
-    var code = 256;
-    var phrase;
-    for (var i=1; i<data.length; i++) {
-        var currCode = data[i].charCodeAt(0);
-        if (currCode < 256) {
-            phrase = data[i];
-        }
-        else {
-           phrase = dict[currCode] ? dict[currCode] : (oldPhrase + currChar);
-        }
-        out.push(phrase);
-        currChar = phrase.charAt(0);
-        dict[code] = oldPhrase + currChar;
-        code++;
-        oldPhrase = phrase;
+  var dict = {};
+  var data = (s + "").split("");
+  var currChar = data[0];
+  var oldPhrase = currChar;
+  var out = [currChar];
+  var code = 256;
+  var phrase;
+  for (var i=1; i<data.length; i++) {
+    var currCode = data[i].charCodeAt(0);
+    if (currCode < 256) {
+      phrase = data[i];
+    } else {
+      phrase = dict[currCode] ? dict[currCode] : (oldPhrase + currChar);
     }
-    return out.join("");
+    out.push(phrase);
+    currChar = phrase.charAt(0);
+    dict[code] = oldPhrase + currChar;
+    code++;
+    oldPhrase = phrase;
+  }
+  return out.join("");
 }
 
-function tryParseJSON (jsonString){
-    try {
-        var o = JSON.parse(jsonString);
+// currently available commands
+var qdCommands = {
 
-        // Handle non-exception-throwing cases:
-        // Neither JSON.parse(false) or JSON.parse(1234) throw errors, hence the type-checking,
-        // but... JSON.parse(null) returns 'null', and typeof null === "object", 
-        // so we must check for that, too.
-        if (o && typeof o === "object" && o !== null) {
-            return o;
-        }
+  // retrieves chat messages
+  getchatmessages: function(args, msg, cb) {
+
+    qdpb.read(10, function(data) {
+
+      var destination = msg.dst || msg.src || "/";
+      var result = {
+        type: 3,
+        pri : 0,
+        dst : destination,
+        cb  : msg.cb,
+        msg : { "chatMessages": data }
+      }
+
+      cb(false, result);
+    });
+
+  },
+
+  // retrieves current users
+  getusers: function(args, msg, cb) {
+
+    var destination = msg.dst || msg.src || "/";
+    var result = {
+      type: 3,
+      pri : 0,
+      dst : destination,
+      cb  : msg.cb,
+      msg : { "users": Users }
+    }
+
+    cb(false, result);
+  }
+
+}
+
+var qd = {
+
+  tryParseJSON: function (jsonString) {
+    try {
+      var o = JSON.parse(jsonString);
+
+         // Handle non-exception-throwing cases:
+        // Neither JSON.parse(false) or JSON.parse(1234) throw errors, 
+       // hence the type-checking,
+      // but... JSON.parse(null) returns 'null', and typeof null === "object", 
+      // so we must check for that, too.
+      if (o && typeof o === "object" && o !== null) {
+        return o;
+      }
     }
     catch (e) { }
 
     return false;
-}
+  },
 
-var qdEncode = function(s) {
+  encode: function(s) {
 
-  var string = JSON.stringify(s);
-  var compressed = lzw_encode( string );
-  var b64 = b64EncodeUnicode( compressed );
-  return ( b64 );
-}
+    var string = JSON.stringify(s);
+    var compressed = lzw_encode( string );
+    var b64 = b64EncodeUnicode( compressed );
+    return ( b64 );
+  },
 
-var qdDecode = function(s) {
+  decode: function(s) {
 
-  return lzw_decode( b64DecodeUnicode(s) );
+    return lzw_decode( b64DecodeUnicode(s) );
+  },
+
+  msg: {
+
+    // format an array of fields into a proper qdMsg
+    format: function(fields){
+
+      var msg = {
+           v:  0,
+         key: false,
+        type:  1,
+        date: (new Date).getTime(),
+         src: 'server',
+         dst: '/',
+         pri:  0,
+         usr: 'XY2',
+         cb : false,
+         msg: 'Ok'
+      }
+
+       // Visit non-inherited enumerable keys
+      //update msg properties as they are provided
+      Object.keys(msg).forEach(function(key) {
+        if(msg.hasOwnProperty(key)) {
+          Object.keys(fields).forEach(function(key) {
+            if(fields.hasOwnProperty(key)) {
+              msg[key] = fields[key];
+            }
+          });
+        }
+      });
+
+      APP_CONFIG.log.debug("Reply", msg);
+      return { enc: qd.encode(msg) };
+    },
+  },
+
+  run: function(command, msg, cb) {
+
+    // strip off the command character
+    command = command.substr(1);
+
+    var args = "";
+
+    // strip off everything once there is a space character
+    command = command.substring(0, command.indexOf(' '));
+
+    // check to see if the command is in the list of available commands
+    if ( qdCommands.hasOwnProperty(command) ) {
+
+      // map to command function, then run it and see what comes back!
+      qdCommands[command](args, msg, function(err, result) {
+        if(err) APP_CONFIG.log(err);
+        else if(result) {
+          cb( false, result );
+        }
+      })
+    } else {
+      cb("ECMDNOTFOUND")
+    }
+  }
 }
 
 var qdpb = {
@@ -193,7 +258,7 @@ var qdpb = {
     });
   },
 
-  read: function(type, limit, cb) {
+  read: function(limit, cb) {
 
     var client = new pg.Client(connectionString);
     client.connect();
@@ -201,7 +266,7 @@ var qdpb = {
     var query = client.query(`
       SELECT *
       FROM testfeed 
-      WHERE type = ` + type + `
+      WHERE type = ` + 0 + `
       ORDER BY date DESC
       LIMIT ` + limit + `
     `);
@@ -215,48 +280,10 @@ var qdpb = {
     });
 
   }
-
 }
 
 var Req = {
-  check: function(request, cb) {
-
-    // if the request exists
-    if(request) {
-
-      // if enc object exists in request
-      var payload = {};
-      if( payload = request.enc ) {
-
-        // if it is already an object
-        if( typeof payload === "object" ) {
-
-          cb(false, payload);
-
-        } else {
-
-          var decoded = qdDecode(payload);
-
-          // if it is JSON
-          var parsedRequest = tryParseJSON(decoded);
-          if(parsedRequest) {
-            cb(false, parsedRequest);
-          
-          } else {
-
-            cb('EREQNOTJSON');
-          }
-        }
-      } else {
-        cb('EREQNOTENC');
-      }
-    } else {
-
-      cb("EREQEMPTY");
-    }
-  },
-
-  parse: function(parsedRequest, err, cb) {
+  parse: function(request, cb) {
 
     // field defaults
     var fields = {
@@ -269,94 +296,219 @@ var Req = {
        pri:  0,
        usr: '',
        chk: 'dd1e48d8cb7ae1d41bbbb71f03c6c540',
+       cb : false,
        msg: ''
     }
 
-    // iterate through the payload fields
-    Object.keys(parsedRequest).forEach(function(key,index) {
-      fields[key] = parsedRequest[key];
-    });
+    // if the request exists
+    if(request) {
 
-    cb(false, fields);
+      // if enc object exists in request
+      var payload = {};
+      if( payload = request.enc ) {
+
+        // if it is already an object
+        if( typeof payload === "object" ) {
+
+          // go straight to processing
+          cb(false, payload);
+
+        } else {
+
+          // uncompress the message
+          var decoded = qd.decode(payload);
+
+          // if it is in JSON, pass it along
+          var parsedRequest = qd.tryParseJSON(decoded);
+
+          if(parsedRequest) {
+
+            // iterate through the payload fields
+            var fields = {};
+            Object.keys(parsedRequest).forEach( function( key, index ) {
+              fields[key] = parsedRequest[key];
+            });
+
+            cb(false, fields);
+          
+          } else {
+            cb('EREQNOTJSON');
+          }
+        }
+      } else {
+        cb('EREQNOTENC');
+      }
+    } else {
+      cb("EREQEMPTY");
+    }
   },
 
   process: function(fields, err, cb) {
     var fieldKeys = Object.keys(fields);
     var totalFields = fieldKeys.length;
 
-    fieldKeys.forEach(function(key,index) {
-      totalFields = totalFields -1;
+    APP_CONFIG.log.debug(fields);
 
-      //console.log(key, fields[key]);
-    });
-
-    console.log(fields);
-
+    // add the new msg to the database
     qdpb.write(fields);
 
-    var msgContent = fields['msg'];
-    postAPI(msgContent);
+    // post the msg payload to an external API
+    var msgContent = fields.msg;
+    //postExternalAPI(msgContent);
 
-    if(fields.msg == '~getMsgs') {
+    // if the msg type is an app log
+    if(fields.type == 60) {
+      
+      // if the client wants a socket confirmation
+      if(fields.msg.e == "socket") {
 
-      qdpb.read(10, 20, function(data) {
+        var reply = {
+          type: 3,
+           src: 'server',
+           dst: fields.src,
+           usr: 'server',
+           msg: 'socket established'
+        };
 
-        var replyMsg = {
-          type: fields.type + 1,
-          pri : 0,
-          msg : { "chatMessages": data }
+        cb( false, { whip: "qdMsgSocket", encoded: qd.msg.format(reply) } );
+      }
+    }
+
+    // if the message is a command and starts with the special Tilde character
+    else if(typeof msgContent === "string" && msgContent.startsWith('~') ) {
+
+      // map the command to a handler, and run it!
+      qd.run(fields.msg, fields, function(err, result) {
+        if (err) cb(err);
+        else {
+
+          cb( false, { 
+            encoded: qd.msg.format(result),
+            whip: result.dst
+          });
         }
-
-        var replyEnc = qdMsg.format(replyMsg);
-
-        cb( false, {res: replyMsg.msg, enc:replyEnc} );
       });
 
     } else {
 
-      var replyMsg = {
-        type: fields.type + 1,
-        pri : 0,
-        msg : {
-                s: 200,
-                m: 'Ok'
-              }
+      // if the message is chat
+      if(fields.type == 0) {
+        cb( false, { 
+            broadcast: true, 
+            encoded: qd.msg.format( {
+              msg: fields.msg, 
+              usr: fields.usr,
+              dst: fields.dst,
+              cb : "newChatMessage"
+            }),
+            whip: fields.dst
+          }
+        );
+      } else {
+        cb( false, { 
+          encoded: qd.msg.format( {} ),
+          whip: fields.dst
+        });
       }
-      var replyEnc = qdMsg.format(replyMsg);
-      cb( false, {res: replyMsg.msg, enc:replyEnc} );
+
     }
   },
 
   reply: function(res, reply, err, cb) {
-    res.status(reply.res.s).send(reply).end();
+
+    var status = reply.status || 200;
+
+    res.status(status).send( reply.enc ).end();
     cb(false);
   },
 
   sReply: function(socket, reply, err, cb) {
-    socket.emit('qdMsg', reply);
-    socket.broadcast.emit('qdMsg', reply);
+    var whip = reply.whip || "qdMsgDown";
+    var broadcast = reply.broadcast || false;
+
+    APP_CONFIG.log.debug("whip: "+whip, "broadcast: "+broadcast);
+
+    if(broadcast) {
+      socket.broadcast.emit( whip, reply.encoded );
+    } else {
+      socket.emit( whip, reply.encoded );
+    }
     cb(false);
   }
 }
 
+var Users = {};
 
 var qdAPI = {
 
+  // (query Q) a new incoming qdMsg
   new: function(req, res, next) {
-    Req.check(req.body, function(err, request) {
+
+    // check the formatting of the message
+    Req.parse(msg, function(err, fields) {
       if(err) APP_CONFIG.log.error(err)
       else {
-        Req.parse(request, err, function(err, fields) {
-          Req.process(fields, err, function(err, reply) {
+
+        // run the query
+        Req.process(fields, err, function(err, reply) {
+          if(err) APP_CONFIG.log.error(err)
+          else {
+
+            // send the reply msg
             Req.reply(res, reply, err, function(err) {
               if(err) APP_CONFIG.log.error(arguments.callee.toString(), err);
             })
-          })
+          }
         })
       }
     })
   },
 
+  connect: function(socket) {
+    APP_CONFIG.log.debug("connect", socket.id);
+
+    Users[socket.id] = {
+      name: socket.id
+    };
+
+    var reply = { 
+      broadcast: true,
+      whip: "xy0.me/test",
+      encoded: qd.msg.format( {
+        msg: socket.id +" has joined", 
+        dst: "xy0.me/test",
+        cb : "newChatMessage"
+      })
+    };
+
+    Req.sReply(socket, reply, false, function(err) {
+      if(err) APP_CONFIG.log.error(arguments.callee.toString(), err);
+    })
+  },
+
+  disconnect: function(socket) {
+    APP_CONFIG.log.debug("disconnect", socket.id);
+
+    var reply = { 
+      broadcast: true,
+      whip: "xy0.me/test",
+      encoded: qd.msg.format( {
+        msg: socket.id +" has quit", 
+        dst: "xy0.me/test",
+        cb : "newChatMessage"
+      })
+    };
+
+    Req.sReply(socket, reply, false, function(err) {
+      if(err) APP_CONFIG.log.error(arguments.callee.toString(), err);
+    })
+
+    if (Users[socket.id]) {
+      delete Users[socket.id];
+    }
+  },
+
+  // (display D) request some entries
   get: function (req, res, next) {
     var client = new pg.Client(connectionString);
     client.connect();
@@ -378,15 +530,22 @@ var qdAPI = {
 
   },
   sGet: function(socket, msg) {
-    Req.check(msg, function(err, request) {
+
+    // check the formatting of the message and uncompress it
+    Req.parse(msg, function(err, fields) {
       if(err) APP_CONFIG.log.error(err)
       else {
-        Req.parse(request, err, function(err, fields) {
-          Req.process(fields, err, function(err, reply) {
+
+        // run the query
+        Req.process(fields, err, function(err, reply) {
+          if(err) APP_CONFIG.log.error(err)
+          else {
+
+            // send the reply msg
             Req.sReply(socket, reply, err, function(err) {
               if(err) APP_CONFIG.log.error(arguments.callee.toString(), err);
             })
-          })
+          }
         })
       }
     })

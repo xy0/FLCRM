@@ -1,4 +1,4 @@
-angular.module("flcrm.moduleControllers")
+angular.module("flcrm.moduleControllers", ['flcrm.mainDirectives'])
 
 .controller('defaultModuleCtrl', function($scope, container, state) {
   $scope.user = state.user || null;
@@ -58,41 +58,73 @@ angular.module("flcrm.moduleControllers")
 
 })
 
-.controller("textChatterCtrl", function($scope, SAPI, qdMsg) {
-
+.controller("textChatterCtrl", function($scope, container, qdMsg) {
   $scope.messages = [];
 
-  SAPI.on('qdMsg', function(msg) {
-    qdMsg.check(msg, function(err, checkedMsg) {
-      if(err) console.log(err);
-      else {
-        qdMsg.parse(checkedMsg, function(err, parsedMsg) {
-          console.log(parsedMsg);
-          if( parsedMsg.type = 3 ) {
-            if ( "chatMessages" in parsedMsg.msg ) {
-              $scope.messages = parsedMsg.msg.chatMessages;
-            }
-          }
-        })
-      }
-    })
-  });
+  $scope.sendMessage = function(message) {
 
-  $scope.getMessages = function() {
-    var msg = qdMsg.format({
-      type:  2,
-       src: '/',
-       dst: '/',
-       msg: '~getMsgs'
-    });
-    SAPI.emit('qdMsg', {enc: msg});
+    // send the message to the rootscope
+    qdMsg.send( message );
   }
 
-  $scope.getMessages();
+  $scope.getMessages = function() {
 
+    qdMsg.request({
+      msg: "~getchatmessages 10", 
+      cb : "textChatMessages"
+    }, function(res) {
+      $scope.messages = res.msg.chatMessages;
+      $scope.$apply();
+    });
 
+    qdMsg.register( "newChatMessage", function(data) {
+      $scope.messages.unshift( {msg: data.msg, usr: data.usr} );
+      $scope.$apply();
+    });
+  }
+
+  setTimeout( function() {
+    $scope.getMessages();
+  }, 50); //%%??? why do i have to wait here
+
+})
+
+.controller("userListerCtrl", function($scope, container, qdMsg) {
+
+  $scope.getUsers = function() {
+
+    qdMsg.request({
+      msg: "~getusers ", 
+      cb : "usersList"
+    }, function(res) {
+      $scope.users = res.msg.users;
+      $scope.$apply();
+    });
+
+    // qdMsg.register( "newChatMessage", function(data) {
+    //   $scope.messages.unshift( {msg: data.msg, usr: data.usr} );
+    //   $scope.$apply();
+    // });
+  }
+
+  setTimeout( function() {
+    $scope.getUsers();
+  }, 50); //%%??? why do i have to wait here
 
 
 })
+
+.controller("asciiCamCtrl", function($scope, container, qdMsg) {
+
+  setTimeout( function() {
+
+    var ascii = angular.element(document.querySelector( '#ascii' ))[0].html;
+    console.log(ascii);
+
+  }, 10000);
+
+
+})
+
 
 ;

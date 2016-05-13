@@ -1,7 +1,7 @@
 var APP_CONFIG = require('./config.js');
 
 // ------------------------------  FYN  -------------------------------------
-// DB                     \_|\ FLCRM 2016 xy0~C
+// DB                    \_|\ FLCRM 2016 xy0 ~C
 // --------------------------------------------------------------------------
 
 /* // mongo database
@@ -33,7 +33,6 @@ var fs                            = require('fs'),
     multipart                     = require('connect-multiparty'), // flow file uploads
     multipartMiddleware           = multipart(), // flow file uploads
     ACCESS_CONTROLL_ALLOW_ORIGIN  = false; // for cross-domain uploads
-
 
 app.set('views', __dirname + '/views');
 app.set('view engine', 'jade');
@@ -73,7 +72,10 @@ app.get('*', function (req, res) {
 
    // send the request to the root index file, defineing the current working directory
   //  and and replacing the last part of the path with the client directory 
-  res.sendFile('index.html', { root: __dirname.replace( __dirname.split(/[\\/]/).pop(),'client') });  
+  res.sendFile('index.html', {
+  	root: __dirname.replace( __dirname.split(/[\\/]/).pop(),'client') 
+  });
+
 });
 
 
@@ -86,13 +88,19 @@ process.on('uncaughtException', function(err, data) {
   APP_CONFIG.log.fatal("Application Error", err, data, err.stack);
 });
 
-
 // Socket.io Communication
 //var socket = require('./socket/base');
 io.on('connection', function(socket) {
-  socket.on('qdMsg', function(msg) {
+
+  qdAPI.connect(socket);
+
+  socket.on('qdMsgUp', function(msg) {
     qdAPI.sGet(socket, msg);
-  } )
+  })
+  
+  socket.on('disconnect', function() {
+    qdAPI.disconnect(socket);
+  })
 });
 
 // start a http server
@@ -108,7 +116,8 @@ server.listen(APP_CONFIG.serverPort, function (){
   console.log('API available at http://%s:%s HTTP', host, port);
 });
 
-// if forceHTTPS is enabled, the app will redirect all insecure connections to HTTPS
+ // if forceHTTPS is enabled,
+// the app will redirect all insecure connections to HTTPS
 if(!!APP_CONFIG.forceHTTPS) {
   app.use(function(req, res, next){
     if(req.secure) {

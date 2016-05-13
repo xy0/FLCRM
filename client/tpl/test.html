@@ -34,7 +34,17 @@
   <template type="text/html" id="textChatterModule">
     <div ng-controller="textChatterCtrl" class="fill-height">
 
-      <chat messages="messages"></chat>
+      <chat messages="messages" send-message="sendMessage"></chat>
+      
+    </div>
+  </template>
+
+  <template type="text/html" id="userListerModule">
+    <div ng-controller="userListerCtrl" class="fill-height">
+
+      <div ng-repeat = "user in users" >
+        Name: {{ user.name }}
+      </div>
       
     </div>
   </template>
@@ -56,4 +66,23 @@
       </div>
     </div>
   </template>
+
+  <template type="text/html" id="asciiCamModule">
+    <div ng-controller="asciiCamCtrl">
+    <h1 id="info">Please allow this page to access your camera.</h1>
+
+
+    <pre style="font-size:6pt;color:inherit; background:none;border:none;" 
+          id="ascii">
+      
+    </pre>
+    <button id="pause">pause / resume</button>
+
+    <script src="res/lib/ascii-camera/script/camera.js"></script>
+    <script src="res/lib/ascii-camera/script/ascii.js"></script>
+    <script src="res/lib/ascii-camera/script/app.js"></script>
+
+    </div>
+  </template>
+
 </div>

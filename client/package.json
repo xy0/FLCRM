@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "angular-socket-io": "^0.7.0",
+    "golden-layout": "^1.5.1",
     "gulp": "^3.9.0",
     "gulp-concat": "^2.6.0",
     "gulp-less": "^3.0.3",

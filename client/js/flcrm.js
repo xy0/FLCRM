@@ -1,6 +1,8 @@
 /*                                        FYN 2016 \_|\                                              */
 angular.module( "flcrm", [ 
-                            'flcrm.mainServices', 'flcrm.mainControllers', 'flcrm.mainDirectives',
+                            'flcrm.mainServices', 
+                            'flcrm.mainControllers', 
+                            'flcrm.mainDirectives', 'flcrm.moduleControllers',
                             'ui.router', 'ngFileUpload', 'btford.socket-io'
                          ])
 
@@ -8,7 +10,7 @@ angular.module( "flcrm", [
                         'http://xy0.me/qd'
                       ])
 
-.run( function ($rootScope, $state, Cookies, Log, SAPI, qdMsg) {
+.run( function ($rootScope, $state, $location, Cookies, Log, SAPI, qdMsg) {
 
   console.log('        \\_|\\         ');
 
@@ -24,7 +26,8 @@ angular.module( "flcrm", [
     siteURL       : Window.origin + "/",
     isDataLoaded  : false,
     page          : 'root' || $state.current.name,
-    User          : null
+    User          : null,
+    socketEstablished: false
   }
 
   // see if the client has Prefrences cookie and load it into the app to overwrite the defaults
@@ -41,15 +44,31 @@ angular.module( "flcrm", [
 
   }
 
-  console.log('connecting...');
-  var msg = qdMsg.format({
-    type:  60,
-     msg: '~ Connecting to Web Socket...'
-  });
-  SAPI.emit('qdMsg', {"enc": msg});
+  console.log('> connecting to web socket...');
+  SAPI.emit('qdMsgUp', qdMsg.format({
+                                      type:  60,
+                                       msg:  {
+                                                e: "socket",
+                                                r: "connecting..."
+                                            }
+                                      })
+  );
 
-  SAPI.on('qdRes', function (res) {
-    console.log('server:', res);
+  // result for only the socket connection result
+  SAPI.on('qdMsgSocket', function (reply) {
+    console.log('server > ', qdMsg.parse(reply).msg );
+    $rootScope.Globals.socketEstablished = true;
+  });
+
+  var currentLocation = $location.absUrl().replace(/^(https?:|)\/\//, '');
+
+  SAPI.on( currentLocation, function (reply) {
+    var Msg = qdMsg.parse(reply);
+    var whip = Msg.dst.substring( Msg.dst.indexOf(':') );
+    var broadcastName = Msg.cb || whip || "qdMsgDown";
+
+    console.log('server > ', broadcastName, Msg );
+    $rootScope.$broadcast(broadcastName, Msg);
   });
 
 
@@ -122,5 +141,6 @@ angular.module( "flcrm", [
 });
 
 // create another module for running "modules"... 
-angular.module("flcrm.moduleControllers", [ 'flcrm.mainServices', 'flcrm.mainDirectives', 
-                'btford.socket-io' ])
+// angular.module("flcrm.moduleControllers", [ 'flcrm.mainServices', 'flcrm.mainDirectives', 
+//                                             'btford.socket-io' 
+//                                           ])

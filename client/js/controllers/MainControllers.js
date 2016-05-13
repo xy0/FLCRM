@@ -57,7 +57,7 @@ angular.module("flcrm.mainControllers", [])
             ],
     });
 
-    console.log(msg);
+    console.log("loginform", msg);
     // send message to server
     // API.http(LOG_URLs[l], 'post', msg)
     // .then( function(res) {
@@ -82,8 +82,7 @@ angular.module("flcrm.mainControllers", [])
 
 })
 
-.controller("modulesCtrl", function($scope, $rootScope, $timeout, Log){
-
+.controller("modulesCtrl", function($scope, $rootScope, $timeout, qdMsg, $location){
 
   var defaultConfig = {
     content:[
@@ -173,24 +172,29 @@ angular.module("flcrm.mainControllers", [])
       }, 200);
     }
 
-    // Templates are stored in template tags in the DOM.
+     // Templates are stored in template tags in the DOM. %% for now
+    // select the golden-layout generated container
     var html = $( '#' + newState.templateId ).html(),
         element = container.getElement();
 
-    // Write the template's html into the container
-    element.html( html );
-
-    // Inject container and state into the module. If multiple instances of
-    // the same module are created this will override the previous module's container
-    // and state with the current (correct) 
+      // Inject container and state into the module. If multiple instances of
+     // the same module are created this will override the previous module's container
+    // and state with the current (correct) one
     if(!!newState.module) {
+
+      // Write the template's html into the container
+      element.html( html );
+
+      // method 1
       angular
         .module( newState.module )
         .value( 'container', container )
-        .value( 'state', newState );
-
+        .value( 'state', newState )
+        .value( 'qdMsg', qdMsg );
+      
       // Actually kick off Angular's magic
       angular.bootstrap( element[ 0 ], [ newState.module ] );
+
     } else {
       Log(-1,"injectModuleIntoAngular", {state:state, newState:newState});
     }
@@ -245,6 +249,28 @@ angular.module("flcrm.mainControllers", [])
   addMenuItem( 'iFramer', defaultModuleConfig, "iFramer" );
   //addMenuItem( 'uploader', defaultModuleConfig, "Uploader" );
   addMenuItem( 'textChatter', defaultModuleConfig, "Chat" );
+  addMenuItem( 'userLister', defaultModuleConfig, "Users" );
+  addMenuItem( 'asciiCam', defaultModuleConfig, "Ascii Cam" );
+
+  $rootScope.$on('qdMsgSend', function(name, rawMessage, whip, cb){
+
+    if( "chat" in rawMessage ) {
+      rawMessage.chat.src = $location.absUrl();
+      rawMessage.chat.type = 0;
+      rawMessage.chat.usr = "cytest";
+      qdMsg.send(qdMsg.format(rawMessage.chat));
+    } else {
+      rawMessage.src = $location.absUrl();
+      rawMessage.type = 2;
+      rawMessage.dst = whip;
+      qdMsg.send( qdMsg.format(rawMessage) );
+    }
+
+    $rootScope.$on(whip, function(name, res) {
+      cb(res);
+    })
+  });
+
 })
 
 .controller("emptyCtrl", function($scope, $rootScope, $timeout) {

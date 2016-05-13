@@ -19,8 +19,7 @@ angular.module("flcrm.mainServices", [])
           var msg = qdMsg.format (
             {
               type: 60,
-              src : $rootScope.Globals.siteURL,
-              pri : level,
+              pri : 0 - level,
               msg : {
                     e: event,
                     r: result,
@@ -79,7 +78,7 @@ angular.module("flcrm.mainServices", [])
   return functions;
 })
 
-.factory('qdMsg', function() {
+.factory('qdMsg', function($rootScope, SAPI, $location) {
 
   function b64EncodeUnicode(str) {
     return btoa( unescape( encodeURIComponent( str ) ) );
@@ -174,7 +173,6 @@ angular.module("flcrm.mainServices", [])
     return lzw_decode( b64DecodeUnicode(s) );
   }
 
-
   var qdMsg = {
     format: function(fields){
 
@@ -183,10 +181,11 @@ angular.module("flcrm.mainServices", [])
          key: false,
         type:  0,
         date: (new Date).getTime(),
-         src: '/',
-         dst: '/',
+         src: $location.absUrl().replace(/^(https?:|)\/\//, ''),
+         dst: $location.absUrl().replace(/^(https?:|)\/\//, ''),
          pri:  0,
          usr: '',
+         cb : false,
          msg: ''
       }
 
@@ -202,67 +201,84 @@ angular.module("flcrm.mainServices", [])
         }
       });
 
-      return qdEncode(msg);
+      console.log("sending > ", msg);
+      return {enc: qdEncode(msg)};
     },
-    check: function(request, cb) {
+
+    parse: function(qdMsg) {
 
       // if the request exists
-      if(request) {
+      if(qdMsg) {
 
         // if enc object exists in request
         var payload = {};
-        if( payload = request.enc ) {
+        if( payload = qdMsg.enc ) {
 
           // if it is already an object
           if( typeof payload === "object" ) {
 
-            cb(false, payload);
+            return payload;
 
           } else {
 
+            // decompress and format enc
             var decoded = qdDecode(payload);
 
             // if it is JSON
             var parsedRequest = tryParseJSON(decoded);
             if(parsedRequest) {
-              cb(false, parsedRequest);
+              return(parsedRequest);
             
             } else {
 
-              cb('EREQNOTJSON');
+              return('EREQNOTJSON');
             }
           }
         } else {
-          cb('EREQNOTENC');
+          return('EREQNOTENC');
         }
       } else {
 
-        cb("EREQEMPTY");
+        return("EREQEMPTY");
       }
 
     },
-    parse: function(parsedRequest, cb) {
 
-      // field defaults
-      var fields = {
-           v:  0,
-         key: '',
-        type:  0,
-        date: (new Date).getTime(),
-         src: '/',
-         dst: '/',
-         pri:  0,
-         usr: '',
-         chk: 'dd1e48d8cb7ae1d41bbbb71f03c6c540',
-         msg: ''
-      }
+    send: function(msg) {
 
-      // iterate through the payload fields
-      Object.keys(parsedRequest).forEach(function(key,index) {
-        fields[key] = parsedRequest[key];
+      SAPI.emit( "qdMsgUp", qdMsg.format(msg) );
+
+    },
+
+    request: function(msg, cb) {
+
+      SAPI.emit( "qdMsgUp", qdMsg.format(msg) );
+      $rootScope.$on( msg.cb, function( name, data ) {
+        cb(data);
+      });
+    },
+
+    register: function(whip, cb) {
+
+      $rootScope.$on( whip, function( name, data ) {
+        cb(data);
       });
 
-      cb(false, fields);
+    },
+
+    genRandID: function() {
+      function makeid()
+      {
+          var text = "";
+          var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+          for( var i=0; i < 5; i++ )
+              text += possible.charAt(Math.floor(Math.random() * possible.length));
+
+          return text;
+      }
+
+      return makeid();
     }
   }
 
